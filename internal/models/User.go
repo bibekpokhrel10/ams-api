@@ -132,6 +132,13 @@ func (u *User) Validate() error {
 	if u.Password == "" {
 		return ErrPasswordRequired
 	}
+	if u.UserType == "" {
+		return ErrUserTypeRequired
+	} else {
+		if u.UserType != "teacher" && u.UserType != "student" {
+			return ErrInvalidUserType
+		}
+	}
 	return nil
 }
 

@@ -33,3 +33,17 @@ func NewDepartment(req *DepartmentRequest) *Department {
 		Type: req.Type,
 	}
 }
+
+func (r *DepartmentRequest) Validate() error {
+	if r.Name == "" {
+		return ErrDepartmentRequired
+	}
+	if r.Type == "" {
+		return ErrDepartmentTypeRequired
+	} else {
+		if r.Type != "teacher" && r.Type != "student" {
+			return ErrInvalidDepartmentType
+		}
+	}
+	return nil
+}

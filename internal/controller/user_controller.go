@@ -7,7 +7,6 @@ import (
 	"github.com/ams-api/internal/models"
 	"github.com/ams-api/internal/response"
 	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
 )
 
 func (server *Server) createUser(ctx *gin.Context) {
@@ -40,7 +39,6 @@ func (server *Server) loginUser(ctx *gin.Context) {
 		ctx.JSON(code, response.ERROR(err))
 		return
 	}
-	logrus.Info("res :: ", res.User)
 	accessToken, err := server.tokenMaker.CreateToken(res.User.Id)
 	res.Token = accessToken
 	if err != nil {

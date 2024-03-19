@@ -8,10 +8,10 @@ import (
 
 type IDepartment interface {
 	CreateDepartment(req *models.DepartmentRequest) (*models.DepartmentResponse, error)
-	GetDepartmentById(gcid uint) (*models.DepartmentResponse, error)
+	GetDepartmentById(id uint) (*models.DepartmentResponse, error)
 	ListDepartment() ([]models.DepartmentResponse, error)
-	DeleteDepartment(gcid uint) error
-	UpdateDepartment(gcid uint, req *models.DepartmentRequest) (*models.DepartmentResponse, error)
+	DeleteDepartment(id uint) error
+	UpdateDepartment(id uint, req *models.DepartmentRequest) (*models.DepartmentResponse, error)
 }
 
 func (s Service) CreateDepartment(req *models.DepartmentRequest) (*models.DepartmentResponse, error) {
@@ -25,8 +25,8 @@ func (s Service) CreateDepartment(req *models.DepartmentRequest) (*models.Depart
 	return data.DepartmentResponse(), nil
 }
 
-func (s Service) GetDepartmentById(gcid uint) (*models.DepartmentResponse, error) {
-	data, err := s.repo.FindDepartmentByID(gcid)
+func (s Service) GetDepartmentById(id uint) (*models.DepartmentResponse, error) {
+	data, err := s.repo.FindDepartmentByID(id)
 	if err != nil {
 		return nil, err
 	}
@@ -45,15 +45,15 @@ func (s Service) ListDepartment() ([]models.DepartmentResponse, error) {
 	return DepartmentResponses, nil
 }
 
-func (s Service) DeleteDepartment(gcid uint) error {
-	return s.repo.DeleteDepartment(gcid)
+func (s Service) DeleteDepartment(id uint) error {
+	return s.repo.DeleteDepartment(id)
 }
 
-func (s Service) UpdateDepartment(gcid uint, req *models.DepartmentRequest) (*models.DepartmentResponse, error) {
+func (s Service) UpdateDepartment(id uint, req *models.DepartmentRequest) (*models.DepartmentResponse, error) {
 	if req == nil {
 		return nil, errors.New("game category request is nil while updating game category")
 	}
-	data, err := s.repo.UpdateDepartment(gcid, models.NewDepartment(req))
+	data, err := s.repo.UpdateDepartment(id, models.NewDepartment(req))
 	if err != nil {
 		return nil, err
 	}
