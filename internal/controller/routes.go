@@ -14,6 +14,11 @@ func (server *Server) setupRouter() {
 	//_ = apiRoutes.Use(middleware.AuthMiddleware(server.tokenMaker, server.service, server.cache))
 	server.setupUserRoutes(apiRoutes.Group("/users"))
 	server.setupDepartmentRoutes(apiRoutes.Group("/departments"))
+	server.setupCourseRoutes(apiRoutes.Group("/courses"))
+	server.setupClassRoutes(apiRoutes.Group("/classes"))
+	server.setupEnrollmentRoutes(apiRoutes.Group("/enrollments"))
+	server.setupSemesterRoutes(apiRoutes.Group("/semesters"))
+	server.setuuAttendanceRoutes(apiRoutes.Group("/attendances"))
 }
 
 func (server *Server) setupBasicRoutes(routes *gin.RouterGroup) {
@@ -26,11 +31,51 @@ func (server *Server) setupUserRoutes(routes *gin.RouterGroup) {
 }
 
 func (server *Server) setupDepartmentRoutes(routes *gin.RouterGroup) {
-	server.router.POST("/departments", server.createDepartment)
-	server.router.GET("/departments", server.listDepartment)
-	server.router.GET("/departments/:id", server.getDepartmentById)
-	server.router.PUT("/departments/:id", server.updateDepartment)
-	server.router.DELETE("/departments/:id", server.deleteDepartment)
+	server.router.POST("/", server.createDepartment)
+	server.router.GET("/", server.listDepartment)
+	server.router.GET("/:id", server.getDepartmentById)
+	server.router.PUT("/:id", server.updateDepartment)
+	server.router.DELETE("/:id", server.deleteDepartment)
+}
+
+func (server *Server) setupCourseRoutes(routes *gin.RouterGroup) {
+	server.router.POST("/", server.createCourse)
+	server.router.GET("/", server.listCourse)
+	server.router.GET("/:id", server.getCourseById)
+	server.router.PUT("/:id", server.updateCourse)
+	server.router.DELETE("/:id", server.deleteCourse)
+}
+
+func (server *Server) setupClassRoutes(routes *gin.RouterGroup) {
+	server.router.POST("/", server.createClass)
+	server.router.GET("/", server.listClass)
+	server.router.GET("/:id", server.getClassById)
+	server.router.PUT("/:id", server.updateClass)
+	server.router.DELETE("/:id", server.deleteClass)
+}
+
+func (server *Server) setupEnrollmentRoutes(routes *gin.RouterGroup) {
+	server.router.POST("/", server.createEnrollment)
+	server.router.GET("/", server.listEnrollment)
+	server.router.GET("/:id", server.getEnrollmentById)
+	server.router.PUT("/:id", server.updateEnrollment)
+	server.router.DELETE("/:id", server.deleteEnrollment)
+}
+
+func (server *Server) setupSemesterRoutes(routes *gin.RouterGroup) {
+	server.router.POST("/", server.createSemester)
+	server.router.GET("/", server.listSemester)
+	server.router.GET("/:id", server.getSemesterById)
+	server.router.PUT("/:id", server.updateSemester)
+	server.router.DELETE("/:id", server.deleteSemester)
+}
+
+func (server *Server) setuuAttendanceRoutes(routes *gin.RouterGroup) {
+	server.router.POST("/", server.createAttendance)
+	server.router.GET("/", server.listAttendance)
+	server.router.GET("/:id", server.getAttendanceById)
+	server.router.PUT("/:id", server.updateAttendance)
+	server.router.DELETE("/:id", server.deleteAttendance)
 }
 
 // Swagger host path and basepath configuration

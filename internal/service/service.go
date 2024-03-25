@@ -5,6 +5,11 @@ import "github.com/ams-api/internal/repository"
 type IService interface {
 	IUser
 	IDepartment
+	IClass
+	ICourse
+	ISemester
+	IAttendance
+	IEnrollment
 }
 
 type Service struct {

@@ -8,6 +8,11 @@ import (
 type IRepository interface {
 	IUser
 	IDepartment
+	IAttendance
+	IClass
+	ICourse
+	ISemester
+	IEnrollment
 }
 
 // Repostory type struct

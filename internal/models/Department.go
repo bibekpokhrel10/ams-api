@@ -27,11 +27,12 @@ func (d *Department) DepartmentResponse() *DepartmentResponse {
 	}
 }
 
-func NewDepartment(req *DepartmentRequest) *Department {
-	return &Department{
+func NewDepartment(req *DepartmentRequest) (*Department, error) {
+	department := &Department{
 		Name: req.Name,
 		Type: req.Type,
 	}
+	return department, nil
 }
 
 func (r *DepartmentRequest) Validate() error {

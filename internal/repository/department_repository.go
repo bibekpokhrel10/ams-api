@@ -7,7 +7,7 @@ import (
 type IDepartment interface {
 	CreateDepartment(data *models.Department) (*models.Department, error)
 	FindAllDepartment() (*[]models.Department, error)
-	FindDepartmentByID(id uint) (*models.Department, error)
+	FindDepartmentById(id uint) (*models.Department, error)
 	UpdateDepartment(id uint, data *models.Department) (*models.Department, error)
 	DeleteDepartment(id uint) error
 }
@@ -29,7 +29,7 @@ func (r *Repository) FindAllDepartment() (*[]models.Department, error) {
 	return datas, err
 }
 
-func (r *Repository) FindDepartmentByID(id uint) (*models.Department, error) {
+func (r *Repository) FindDepartmentById(id uint) (*models.Department, error) {
 	data := &models.Department{}
 	err := r.db.Model(models.Department{}).Where("id = ?", id).Take(data).Error
 	if err != nil {

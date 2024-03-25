@@ -18,7 +18,11 @@ func (s Service) CreateDepartment(req *models.DepartmentRequest) (*models.Depart
 	if req == nil {
 		return nil, errors.New("game category request is nil while creating game category")
 	}
-	data, err := s.repo.CreateDepartment(models.NewDepartment(req))
+	newReq, err := models.NewDepartment(req)
+	if err != nil {
+		return nil, err
+	}
+	data, err := s.repo.CreateDepartment(newReq)
 	if err != nil {
 		return nil, err
 	}
@@ -26,7 +30,7 @@ func (s Service) CreateDepartment(req *models.DepartmentRequest) (*models.Depart
 }
 
 func (s Service) GetDepartmentById(id uint) (*models.DepartmentResponse, error) {
-	data, err := s.repo.FindDepartmentByID(id)
+	data, err := s.repo.FindDepartmentById(id)
 	if err != nil {
 		return nil, err
 	}
@@ -38,11 +42,11 @@ func (s Service) ListDepartment() ([]models.DepartmentResponse, error) {
 	if err != nil {
 		return nil, err
 	}
-	var DepartmentResponses []models.DepartmentResponse
+	var responses []models.DepartmentResponse
 	for _, data := range *datas {
-		DepartmentResponses = append(DepartmentResponses, *data.DepartmentResponse())
+		responses = append(responses, *data.DepartmentResponse())
 	}
-	return DepartmentResponses, nil
+	return responses, nil
 }
 
 func (s Service) DeleteDepartment(id uint) error {
@@ -53,7 +57,11 @@ func (s Service) UpdateDepartment(id uint, req *models.DepartmentRequest) (*mode
 	if req == nil {
 		return nil, errors.New("game category request is nil while updating game category")
 	}
-	data, err := s.repo.UpdateDepartment(id, models.NewDepartment(req))
+	newReq, err := models.NewDepartment(req)
+	if err != nil {
+		return nil, err
+	}
+	data, err := s.repo.UpdateDepartment(id, newReq)
 	if err != nil {
 		return nil, err
 	}
