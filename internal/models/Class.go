@@ -1,6 +1,11 @@
 package models
 
-import "github.com/jinzhu/gorm"
+import (
+	"errors"
+	"strings"
+
+	"github.com/jinzhu/gorm"
+)
 
 type Class struct {
 	gorm.Model
@@ -48,4 +53,15 @@ func NewClass(req *ClassRequest) (*Class, error) {
 		InstructorID: req.InstructorID,
 	}
 	return class, nil
+}
+
+func (req *ClassRequest) Validate() error {
+	if req.Schedule == "" {
+		return errors.New("program name is required")
+	}
+	return nil
+}
+
+func (req *ClassRequest) Prepare() {
+	req.Schedule = strings.TrimSpace(req.Schedule)
 }

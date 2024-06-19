@@ -16,7 +16,11 @@ type IClass interface {
 
 func (s Service) CreateClass(req *models.ClassRequest) (*models.ClassResponse, error) {
 	if req == nil {
-		return nil, errors.New("game category request is nil while creating game category")
+		return nil, errors.New("class request is nil while creating class")
+	}
+	req.Prepare()
+	if err := req.Validate(); err != nil {
+		return nil, err
 	}
 	newReq, err := models.NewClass(req)
 	if err != nil {
@@ -55,13 +59,17 @@ func (s Service) DeleteClass(id uint) error {
 
 func (s Service) UpdateClass(id uint, req *models.ClassRequest) (*models.ClassResponse, error) {
 	if req == nil {
-		return nil, errors.New("game category request is nil while updating game category")
+		return nil, errors.New("class request is nil while updating class")
 	}
-	newReq, err := models.NewClass(req)
-	if err != nil {
+	req.Prepare()
+	if err := req.Validate(); err != nil {
 		return nil, err
 	}
-	data, err := s.repo.UpdateClass(id, newReq)
+	datum, err := s.repo.FindClassById(id)
+	if err != nil {
+		return nil, errors.New("class not found")
+	}
+	data, err := s.repo.UpdateClass(datum.ID, req)
 	if err != nil {
 		return nil, err
 	}

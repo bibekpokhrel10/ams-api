@@ -16,7 +16,7 @@ type IEnrollment interface {
 
 func (s Service) CreateEnrollment(req *models.EnrollmentRequest) (*models.EnrollmentResponse, error) {
 	if req == nil {
-		return nil, errors.New("game category request is nil while creating game category")
+		return nil, errors.New("enrollment request is nil while creating enrollment")
 	}
 	newReq, err := models.NewEnrollment(req)
 	if err != nil {
@@ -55,13 +55,13 @@ func (s Service) DeleteEnrollment(id uint) error {
 
 func (s Service) UpdateEnrollment(id uint, req *models.EnrollmentRequest) (*models.EnrollmentResponse, error) {
 	if req == nil {
-		return nil, errors.New("game category request is nil while updating game category")
+		return nil, errors.New("enrollment request is nil while updating enrollment")
 	}
-	newReq, err := models.NewEnrollment(req)
+	datum, err := s.repo.FindEnrollmentById(id)
 	if err != nil {
-		return nil, err
+		return nil, errors.New("enrollment not found")
 	}
-	data, err := s.repo.UpdateEnrollment(id, newReq)
+	data, err := s.repo.UpdateEnrollment(datum.ID, req)
 	if err != nil {
 		return nil, err
 	}

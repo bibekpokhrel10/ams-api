@@ -1,6 +1,9 @@
 package models
 
 import (
+	"errors"
+	"strings"
+
 	"github.com/jinzhu/gorm"
 )
 
@@ -45,4 +48,15 @@ func NewCourse(req *CourseRequest) (*Course, error) {
 		SemesterId: req.SemesterId,
 	}
 	return course, nil
+}
+
+func (req *CourseRequest) Validate() error {
+	if req.Name == "" {
+		return errors.New("program name is required")
+	}
+	return nil
+}
+
+func (req *CourseRequest) Prepare() {
+	req.Name = strings.TrimSpace(req.Name)
 }

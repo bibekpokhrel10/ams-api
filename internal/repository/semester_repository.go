@@ -8,7 +8,7 @@ type ISemester interface {
 	CreateSemester(data *models.Semester) (*models.Semester, error)
 	FindAllSemester() (*[]models.Semester, error)
 	FindSemesterById(id uint) (*models.Semester, error)
-	UpdateSemester(id uint, data *models.Semester) (*models.Semester, error)
+	UpdateSemester(id uint, req *models.SemesterRequest) (*models.Semester, error)
 	DeleteSemester(id uint) error
 }
 
@@ -38,8 +38,14 @@ func (r *Repository) FindSemesterById(id uint) (*models.Semester, error) {
 	return data, err
 }
 
-func (r *Repository) UpdateSemester(id uint, data *models.Semester) (*models.Semester, error) {
-	err := r.db.Model(&models.Semester{}).Where("id = ?", id).Updates(data).Error
+func (r *Repository) UpdateSemester(id uint, req *models.SemesterRequest) (*models.Semester, error) {
+	data := &models.Semester{}
+	err := r.db.Model(&models.Semester{}).Where("id = ?", id).Updates(map[string]interface{}{
+		"name":        req.Name,
+		"year":        req.Year,
+		"time_period": req.TimePeriod,
+		"program_id":  req.ProgramId,
+	}).Take(&data).Error
 	if err != nil {
 		return nil, err
 	}

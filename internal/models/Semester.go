@@ -1,6 +1,9 @@
 package models
 
 import (
+	"errors"
+	"strings"
+
 	"github.com/jinzhu/gorm"
 )
 
@@ -45,4 +48,17 @@ func (s *Semester) SemesterResponse() *SemesterResponse {
 		Year:       s.Year,
 		TimePeriod: s.TimePeriod,
 	}
+}
+
+func (req *SemesterRequest) Validate() error {
+	if req.Name == "" {
+		return errors.New("program name is required")
+	}
+	return nil
+}
+
+func (req *SemesterRequest) Prepare() {
+	req.Name = strings.TrimSpace(req.Name)
+	req.Year = strings.TrimSpace(req.Year)
+	req.TimePeriod = strings.TrimSpace(req.TimePeriod)
 }

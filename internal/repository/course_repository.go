@@ -8,7 +8,7 @@ type ICourse interface {
 	CreateCourse(data *models.Course) (*models.Course, error)
 	FindAllCourse() (*[]models.Course, error)
 	FindCourseById(id uint) (*models.Course, error)
-	UpdateCourse(id uint, data *models.Course) (*models.Course, error)
+	UpdateCourse(id uint, req *models.CourseRequest) (*models.Course, error)
 	DeleteCourse(id uint) error
 }
 
@@ -38,8 +38,14 @@ func (r *Repository) FindCourseById(id uint) (*models.Course, error) {
 	return data, err
 }
 
-func (r *Repository) UpdateCourse(id uint, data *models.Course) (*models.Course, error) {
-	err := r.db.Model(&models.Course{}).Where("id = ?", id).Updates(data).Error
+func (r *Repository) UpdateCourse(id uint, req *models.CourseRequest) (*models.Course, error) {
+	data := &models.Course{}
+	err := r.db.Model(&models.Course{}).Where("id = ?", id).Updates(map[string]interface{}{
+		"name":        req.Name,
+		"code":        req.Code,
+		"credits":     req.Credits,
+		"semester_id": req.SemesterId,
+	}).Take(&data).Error
 	if err != nil {
 		return nil, err
 	}

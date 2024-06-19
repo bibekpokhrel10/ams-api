@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"errors"
 	"net/http"
 	"strconv"
 
@@ -10,13 +9,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (server *Server) createEnrollment(ctx *gin.Context) {
-	var req *models.EnrollmentRequest
+func (server *Server) createProgram(ctx *gin.Context) {
+	var req *models.ProgramRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, response.ERROR(err))
 		return
 	}
-	data, err := server.service.CreateEnrollment(req)
+	data, err := server.service.CreateProgram(req)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, response.ERROR(err))
 		return
@@ -24,8 +23,8 @@ func (server *Server) createEnrollment(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response.Success(data))
 }
 
-func (server *Server) listEnrollment(ctx *gin.Context) {
-	datas, err := server.service.ListEnrollment()
+func (server *Server) listProgram(ctx *gin.Context) {
+	datas, err := server.service.ListProgram()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, response.ERROR(err))
 		return
@@ -33,14 +32,14 @@ func (server *Server) listEnrollment(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response.Success(datas))
 }
 
-func (server *Server) getEnrollmentById(ctx *gin.Context) {
+func (server *Server) getProgramById(ctx *gin.Context) {
 	id := ctx.Param("id")
 	depId, err := strconv.ParseUint(id, 10, 64)
 	if err != nil {
 		ctx.JSON(http.StatusUnprocessableEntity, response.ERROR(err))
 		return
 	}
-	data, err := server.service.GetEnrollmentById(uint(depId))
+	data, err := server.service.GetProgramById(uint(depId))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, response.ERROR(err))
 		return
@@ -48,19 +47,19 @@ func (server *Server) getEnrollmentById(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response.Success(data))
 }
 
-func (server *Server) updateEnrollment(ctx *gin.Context) {
+func (server *Server) updateProgram(ctx *gin.Context) {
 	id := ctx.Param("id")
 	moduleId, err := strconv.ParseUint(id, 10, 64)
 	if err != nil {
 		ctx.JSON(http.StatusUnprocessableEntity, response.ERROR(err))
 		return
 	}
-	var req *models.EnrollmentRequest
+	var req *models.ProgramRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, response.ERROR(err))
 		return
 	}
-	data, err := server.service.UpdateEnrollment(uint(moduleId), req)
+	data, err := server.service.UpdateProgram(uint(moduleId), req)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, response.ERROR(err))
 		return
@@ -68,19 +67,14 @@ func (server *Server) updateEnrollment(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response.Success(data))
 }
 
-func (server *Server) deleteEnrollment(ctx *gin.Context) {
+func (server *Server) deleteProgram(ctx *gin.Context) {
 	id := ctx.Param("id")
-	depId, err := strconv.ParseUint(id, 10, 64)
+	moduleId, err := strconv.ParseUint(id, 10, 64)
 	if err != nil {
 		ctx.JSON(http.StatusUnprocessableEntity, response.ERROR(err))
 		return
 	}
-	Enrollment, err := server.service.GetEnrollmentById(uint(depId))
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, response.ERROR(errors.New("enrollment not found")))
-		return
-	}
-	err = server.service.DeleteEnrollment(Enrollment.Id)
+	err = server.service.DeleteProgram(uint(moduleId))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, response.ERROR(err))
 		return

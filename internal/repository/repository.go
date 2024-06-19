@@ -12,6 +12,7 @@ type IRepository interface {
 	ICourse
 	ISemester
 	IEnrollment
+	IProgram
 }
 
 // Repostory type struct

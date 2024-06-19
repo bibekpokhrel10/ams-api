@@ -16,10 +16,6 @@ func (server *Server) createSemester(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, response.ERROR(err))
 		return
 	}
-	// if err := req.Validate(); err != nil {
-	// 	ctx.JSON(http.StatusBadRequest, response.ERROR(err))
-	// 	return
-	// }
 	data, err := server.service.CreateSemester(req)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, response.ERROR(err))
@@ -54,7 +50,7 @@ func (server *Server) getSemesterById(ctx *gin.Context) {
 
 func (server *Server) updateSemester(ctx *gin.Context) {
 	id := ctx.Param("id")
-	depId, err := strconv.ParseUint(id, 10, 64)
+	moduleId, err := strconv.ParseUint(id, 10, 64)
 	if err != nil {
 		ctx.JSON(http.StatusUnprocessableEntity, response.ERROR(err))
 		return
@@ -64,16 +60,7 @@ func (server *Server) updateSemester(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, response.ERROR(err))
 		return
 	}
-	// if err := req.Validate(); err != nil {
-	// 	ctx.JSON(http.StatusBadRequest, response.ERROR(err))
-	// 	return
-	// }
-	Semester, err := server.service.GetSemesterById(uint(depId))
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, response.ERROR(errors.New("semester not found")))
-		return
-	}
-	data, err := server.service.UpdateSemester(Semester.Id, req)
+	data, err := server.service.UpdateSemester(uint(moduleId), req)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, response.ERROR(err))
 		return

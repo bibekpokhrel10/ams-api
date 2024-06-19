@@ -13,10 +13,11 @@ func (server *Server) setupRouter() {
 	server.setupBasicRoutes(apiRoutes)
 	server.setupUserRoutes(apiRoutes.Group("/users"))
 	_ = apiRoutes.Use(middleware.AuthMiddleware(server.tokenMaker, server.service))
+	server.setupProgramRoutes(apiRoutes.Group("/programs"))
+	server.setupSemesterRoutes(apiRoutes.Group("/semesters"))
 	server.setupCourseRoutes(apiRoutes.Group("/courses"))
 	server.setupClassRoutes(apiRoutes.Group("/classes"))
 	server.setupEnrollmentRoutes(apiRoutes.Group("/enrollments"))
-	server.setupSemesterRoutes(apiRoutes.Group("/semesters"))
 	server.setuuAttendanceRoutes(apiRoutes.Group("/attendances"))
 }
 
@@ -27,6 +28,22 @@ func (server *Server) setupBasicRoutes(routes *gin.RouterGroup) {
 func (server *Server) setupUserRoutes(routes *gin.RouterGroup) {
 	routes.POST("/register", server.createUser)
 	routes.POST("/login", server.loginUser)
+}
+
+func (server *Server) setupProgramRoutes(routes *gin.RouterGroup) {
+	routes.POST("", server.createProgram)
+	routes.GET("", server.listProgram)
+	routes.GET("/:id", server.getProgramById)
+	routes.PUT("/:id", server.updateProgram)
+	routes.DELETE("/:id", server.deleteProgram)
+}
+
+func (server *Server) setupSemesterRoutes(routes *gin.RouterGroup) {
+	routes.POST("", server.createSemester)
+	routes.GET("", server.listSemester)
+	routes.GET("/:id", server.getSemesterById)
+	routes.PUT("/:id", server.updateSemester)
+	routes.DELETE("/:id", server.deleteSemester)
 }
 
 func (server *Server) setupCourseRoutes(routes *gin.RouterGroup) {
@@ -51,14 +68,6 @@ func (server *Server) setupEnrollmentRoutes(routes *gin.RouterGroup) {
 	routes.GET("/:id", server.getEnrollmentById)
 	routes.PUT("/:id", server.updateEnrollment)
 	routes.DELETE("/:id", server.deleteEnrollment)
-}
-
-func (server *Server) setupSemesterRoutes(routes *gin.RouterGroup) {
-	routes.POST("", server.createSemester)
-	routes.GET("", server.listSemester)
-	routes.GET("/:id", server.getSemesterById)
-	routes.PUT("/:id", server.updateSemester)
-	routes.DELETE("/:id", server.deleteSemester)
 }
 
 func (server *Server) setuuAttendanceRoutes(routes *gin.RouterGroup) {

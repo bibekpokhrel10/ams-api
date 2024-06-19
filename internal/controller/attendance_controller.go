@@ -16,10 +16,6 @@ func (server *Server) createAttendance(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, response.ERROR(err))
 		return
 	}
-	// if err := req.Validate(); err != nil {
-	// 	ctx.JSON(http.StatusBadRequest, response.ERROR(err))
-	// 	return
-	// }
 	data, err := server.service.CreateAttendance(req)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, response.ERROR(err))
@@ -54,7 +50,7 @@ func (server *Server) getAttendanceById(ctx *gin.Context) {
 
 func (server *Server) updateAttendance(ctx *gin.Context) {
 	id := ctx.Param("id")
-	depId, err := strconv.ParseUint(id, 10, 64)
+	moduleId, err := strconv.ParseUint(id, 10, 64)
 	if err != nil {
 		ctx.JSON(http.StatusUnprocessableEntity, response.ERROR(err))
 		return
@@ -64,16 +60,7 @@ func (server *Server) updateAttendance(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, response.ERROR(err))
 		return
 	}
-	// if err := req.Validate(); err != nil {
-	// 	ctx.JSON(http.StatusBadRequest, response.ERROR(err))
-	// 	return
-	// }
-	Attendance, err := server.service.GetAttendanceById(uint(depId))
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, response.ERROR(errors.New("attendance not found")))
-		return
-	}
-	data, err := server.service.UpdateAttendance(Attendance.Id, req)
+	data, err := server.service.UpdateAttendance(uint(moduleId), req)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, response.ERROR(err))
 		return

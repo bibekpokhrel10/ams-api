@@ -1,6 +1,7 @@
 package models
 
 import (
+	"strings"
 	"time"
 
 	"github.com/jinzhu/gorm"
@@ -52,4 +53,12 @@ func NewAttendance(req *AttendanceRequest) (*Attendance, error) {
 		Remarks:   req.Remarks,
 	}
 	return attendance, nil
+}
+
+func (req *AttendanceRequest) Validate() error {
+	return nil
+}
+
+func (req *AttendanceRequest) Prepare() {
+	req.Remarks = strings.TrimSpace(req.Remarks)
 }

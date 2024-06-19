@@ -54,7 +54,7 @@ func (server *Server) getCourseById(ctx *gin.Context) {
 
 func (server *Server) updateCourse(ctx *gin.Context) {
 	id := ctx.Param("id")
-	depId, err := strconv.ParseUint(id, 10, 64)
+	moduleId, err := strconv.ParseUint(id, 10, 64)
 	if err != nil {
 		ctx.JSON(http.StatusUnprocessableEntity, response.ERROR(err))
 		return
@@ -64,16 +64,7 @@ func (server *Server) updateCourse(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, response.ERROR(err))
 		return
 	}
-	// if err := req.Validate(); err != nil {
-	// 	ctx.JSON(http.StatusBadRequest, response.ERROR(err))
-	// 	return
-	// }
-	Course, err := server.service.GetCourseById(uint(depId))
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, response.ERROR(errors.New("course not found")))
-		return
-	}
-	data, err := server.service.UpdateCourse(Course.Id, req)
+	data, err := server.service.UpdateCourse(uint(moduleId), req)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, response.ERROR(err))
 		return

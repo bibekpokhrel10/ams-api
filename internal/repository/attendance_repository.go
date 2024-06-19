@@ -8,7 +8,7 @@ type IAttendance interface {
 	CreateAttendance(data *models.Attendance) (*models.Attendance, error)
 	FindAllAttendance() (*[]models.Attendance, error)
 	FindAttendanceById(id uint) (*models.Attendance, error)
-	UpdateAttendance(id uint, data *models.Attendance) (*models.Attendance, error)
+	UpdateAttendance(id uint, req *models.AttendanceRequest) (*models.Attendance, error)
 	DeleteAttendance(id uint) error
 }
 
@@ -38,8 +38,15 @@ func (r *Repository) FindAttendanceById(id uint) (*models.Attendance, error) {
 	return data, err
 }
 
-func (r *Repository) UpdateAttendance(id uint, data *models.Attendance) (*models.Attendance, error) {
-	err := r.db.Model(&models.Attendance{}).Where("id = ?", id).Updates(data).Error
+func (r *Repository) UpdateAttendance(id uint, req *models.AttendanceRequest) (*models.Attendance, error) {
+	data := &models.Attendance{}
+	err := r.db.Model(&models.Attendance{}).Where("id = ?", id).Updates(map[string]interface{}{
+		"student_id": req.StudentID,
+		"class_id":   req.ClassID,
+		"date":       req.Date,
+		"is_present": req.IsPresent,
+		"remarks":    req.Remarks,
+	}).Error
 	if err != nil {
 		return nil, err
 	}

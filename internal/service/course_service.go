@@ -16,7 +16,11 @@ type ICourse interface {
 
 func (s Service) CreateCourse(req *models.CourseRequest) (*models.CourseResponse, error) {
 	if req == nil {
-		return nil, errors.New("game category request is nil while creating game category")
+		return nil, errors.New("course request is nil while creating course")
+	}
+	req.Prepare()
+	if err := req.Validate(); err != nil {
+		return nil, err
 	}
 	newReq, err := models.NewCourse(req)
 	if err != nil {
@@ -55,13 +59,17 @@ func (s Service) DeleteCourse(id uint) error {
 
 func (s Service) UpdateCourse(id uint, req *models.CourseRequest) (*models.CourseResponse, error) {
 	if req == nil {
-		return nil, errors.New("game category request is nil while updating game category")
+		return nil, errors.New("course request is nil while updating course")
 	}
-	newReq, err := models.NewCourse(req)
-	if err != nil {
+	req.Prepare()
+	if err := req.Validate(); err != nil {
 		return nil, err
 	}
-	data, err := s.repo.UpdateCourse(id, newReq)
+	datum, err := s.repo.FindCourseById(id)
+	if err != nil {
+		return nil, errors.New("course not found")
+	}
+	data, err := s.repo.UpdateCourse(datum.ID, req)
 	if err != nil {
 		return nil, err
 	}

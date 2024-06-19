@@ -16,7 +16,11 @@ type ISemester interface {
 
 func (s Service) CreateSemester(req *models.SemesterRequest) (*models.SemesterResponse, error) {
 	if req == nil {
-		return nil, errors.New("game category request is nil while creating game category")
+		return nil, errors.New("semester request request is nil while creating semester")
+	}
+	req.Prepare()
+	if err := req.Validate(); err != nil {
+		return nil, err
 	}
 	newReq, err := models.NewSemester(req)
 	if err != nil {
@@ -55,13 +59,17 @@ func (s Service) DeleteSemester(id uint) error {
 
 func (s Service) UpdateSemester(id uint, req *models.SemesterRequest) (*models.SemesterResponse, error) {
 	if req == nil {
-		return nil, errors.New("game category request is nil while updating game category")
+		return nil, errors.New("semester request is nil while updating semester")
 	}
-	newReq, err := models.NewSemester(req)
-	if err != nil {
+	req.Prepare()
+	if err := req.Validate(); err != nil {
 		return nil, err
 	}
-	data, err := s.repo.UpdateSemester(id, newReq)
+	datum, err := s.repo.FindSemesterById(id)
+	if err != nil {
+		return nil, errors.New("semester not found")
+	}
+	data, err := s.repo.UpdateSemester(datum.ID, req)
 	if err != nil {
 		return nil, err
 	}

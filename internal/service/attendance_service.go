@@ -16,7 +16,11 @@ type IAttendance interface {
 
 func (s Service) CreateAttendance(req *models.AttendanceRequest) (*models.AttendanceResponse, error) {
 	if req == nil {
-		return nil, errors.New("game category request is nil while creating game category")
+		return nil, errors.New("attendance request is nil while creating attendance")
+	}
+	req.Prepare()
+	if err := req.Validate(); err != nil {
+		return nil, err
 	}
 	newReq, err := models.NewAttendance(req)
 	if err != nil {
@@ -55,13 +59,17 @@ func (s Service) DeleteAttendance(id uint) error {
 
 func (s Service) UpdateAttendance(id uint, req *models.AttendanceRequest) (*models.AttendanceResponse, error) {
 	if req == nil {
-		return nil, errors.New("game category request is nil while updating game category")
+		return nil, errors.New("attendance request is nil while updating attendance")
 	}
-	newReq, err := models.NewAttendance(req)
-	if err != nil {
+	req.Prepare()
+	if err := req.Validate(); err != nil {
 		return nil, err
 	}
-	data, err := s.repo.UpdateAttendance(id, newReq)
+	datum, err := s.repo.FindAttendanceById(id)
+	if err != nil {
+		return nil, errors.New("attendance not found")
+	}
+	data, err := s.repo.UpdateAttendance(datum.ID, req)
 	if err != nil {
 		return nil, err
 	}

@@ -55,7 +55,7 @@ func (p *ProgramRequest) Validate() error {
 	return nil
 }
 
-func (p *Program) Prepare() {
+func (p *ProgramRequest) Prepare() {
 	p.Name = strings.TrimSpace(p.Name)
 	p.Type = strings.TrimSpace(strings.ToLower(p.Type))
 }

@@ -8,7 +8,7 @@ type IEnrollment interface {
 	CreateEnrollment(data *models.Enrollment) (*models.Enrollment, error)
 	FindAllEnrollment() (*[]models.Enrollment, error)
 	FindEnrollmentById(id uint) (*models.Enrollment, error)
-	UpdateEnrollment(id uint, data *models.Enrollment) (*models.Enrollment, error)
+	UpdateEnrollment(id uint, req *models.EnrollmentRequest) (*models.Enrollment, error)
 	DeleteEnrollment(id uint) error
 }
 
@@ -38,8 +38,12 @@ func (r *Repository) FindEnrollmentById(id uint) (*models.Enrollment, error) {
 	return data, err
 }
 
-func (r *Repository) UpdateEnrollment(id uint, data *models.Enrollment) (*models.Enrollment, error) {
-	err := r.db.Model(&models.Enrollment{}).Where("id = ?", id).Updates(data).Error
+func (r *Repository) UpdateEnrollment(id uint, req *models.EnrollmentRequest) (*models.Enrollment, error) {
+	data := &models.Enrollment{}
+	err := r.db.Model(&models.Enrollment{}).Where("id = ?", id).Updates(map[string]interface{}{
+		"student_id": req.StudentID,
+		"class_id":   req.ClassID,
+	}).Error
 	if err != nil {
 		return nil, err
 	}
