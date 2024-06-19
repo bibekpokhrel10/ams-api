@@ -80,15 +80,11 @@ func NewUser(req *UserRequest) (*User, error) {
 		IsAdmin:       req.IsAdmin,
 		IsActive:      req.IsActive,
 	}
-	user.Prepare()
-	err := user.Validate()
-	if err != nil {
-		return nil, err
-	}
-	err = PasswordValidate(user.Password)
-	if err != nil {
-		return nil, err
-	}
+	// user.Prepare()
+	// err := user.Validate()
+	// if err != nil {
+	// 	return nil, err
+	// }
 	hashpwd, err := password.HashPassword(user.Password)
 	if err != nil {
 		return nil, err
@@ -114,15 +110,14 @@ func (u *User) UserResponse() *UserResponse {
 	}
 }
 
-func (u *User) Prepare() {
-	u.ID = 0
+func (u *UserRequest) Prepare() {
 	u.Email = html.EscapeString(strings.TrimSpace(u.Email))
-	u.CreatedAt = time.Now()
-	u.UpdatedAt = time.Now()
-	u.IsActive = true
+	u.UserType = strings.TrimSpace(strings.ToLower(u.UserType))
+	u.Password = strings.TrimSpace(u.Password)
+	// u.IsActive = true
 }
 
-func (u *User) Validate() error {
+func (u *UserRequest) Validate() error {
 	if u.Email == "" {
 		return ErrEmailRequired
 	}
@@ -138,6 +133,10 @@ func (u *User) Validate() error {
 		if u.UserType != "teacher" && u.UserType != "student" {
 			return ErrInvalidUserType
 		}
+	}
+	err := PasswordValidate(u.Password)
+	if err != nil {
+		return err
 	}
 	return nil
 }

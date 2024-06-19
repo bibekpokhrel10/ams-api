@@ -7,6 +7,7 @@ import (
 	"github.com/ams-api/internal/models"
 	"github.com/ams-api/internal/response"
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 )
 
 func (server *Server) createUser(ctx *gin.Context) {
@@ -22,6 +23,7 @@ func (server *Server) createUser(ctx *gin.Context) {
 	}
 	user, err := server.service.CreateUser(req)
 	if err != nil {
+		logrus.Error("error while registering user :: ", err)
 		ctx.JSON(http.StatusInternalServerError, response.ERROR(err))
 		return
 	}

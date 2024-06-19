@@ -7,7 +7,6 @@ import (
 
 type IRepository interface {
 	IUser
-	IDepartment
 	IAttendance
 	IClass
 	ICourse
@@ -31,6 +30,5 @@ func NewRepository(db *gorm.DB) IRepository {
 func AutoMigrate(db *gorm.DB) error {
 	return db.AutoMigrate(
 		models.User{},
-		models.Department{},
 	).Error
 }

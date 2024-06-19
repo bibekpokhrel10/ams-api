@@ -6,6 +6,8 @@ type Enrollment struct {
 	gorm.Model
 	StudentID uint `json:"student_id"`
 	ClassID   uint `json:"class_id"`
+	Year      int  `json:"year"`
+	Duration  int  `json:"duration"`
 }
 
 type EnrollmentResponse struct {

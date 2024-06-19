@@ -6,6 +6,7 @@ import (
 
 	"github.com/ams-api/internal/models"
 	"github.com/ams-api/util/password"
+	"github.com/sirupsen/logrus"
 )
 
 type IUser interface {
@@ -16,6 +17,14 @@ type IUser interface {
 }
 
 func (s Service) CreateUser(req *models.UserRequest) (*models.UserResponse, error) {
+	if req == nil {
+		return nil, errors.New("empty user request")
+	}
+	req.Prepare()
+	if err := req.Validate(); err != nil {
+		logrus.Error("error validating user request :: ", err)
+		return nil, err
+	}
 	user, err := models.NewUser(req)
 	if err != nil {
 		return nil, err

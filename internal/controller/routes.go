@@ -11,9 +11,8 @@ func (server *Server) setupRouter() {
 	apiRoutes := server.router.Group("/api/v1")
 
 	server.setupBasicRoutes(apiRoutes)
-	//_ = apiRoutes.Use(middleware.AuthMiddleware(server.tokenMaker, server.service, server.cache))
 	server.setupUserRoutes(apiRoutes.Group("/users"))
-	server.setupDepartmentRoutes(apiRoutes.Group("/departments"))
+	_ = apiRoutes.Use(middleware.AuthMiddleware(server.tokenMaker, server.service))
 	server.setupCourseRoutes(apiRoutes.Group("/courses"))
 	server.setupClassRoutes(apiRoutes.Group("/classes"))
 	server.setupEnrollmentRoutes(apiRoutes.Group("/enrollments"))
@@ -22,60 +21,52 @@ func (server *Server) setupRouter() {
 }
 
 func (server *Server) setupBasicRoutes(routes *gin.RouterGroup) {
-	server.router.GET("", server.homePage)
+	routes.GET("", server.homePage)
 }
 
 func (server *Server) setupUserRoutes(routes *gin.RouterGroup) {
-	server.router.POST("/register", server.createUser)
-	server.router.POST("/login", server.loginUser)
-}
-
-func (server *Server) setupDepartmentRoutes(routes *gin.RouterGroup) {
-	server.router.POST("/", server.createDepartment)
-	server.router.GET("/", server.listDepartment)
-	server.router.GET("/:id", server.getDepartmentById)
-	server.router.PUT("/:id", server.updateDepartment)
-	server.router.DELETE("/:id", server.deleteDepartment)
+	routes.POST("/register", server.createUser)
+	routes.POST("/login", server.loginUser)
 }
 
 func (server *Server) setupCourseRoutes(routes *gin.RouterGroup) {
-	server.router.POST("/", server.createCourse)
-	server.router.GET("/", server.listCourse)
-	server.router.GET("/:id", server.getCourseById)
-	server.router.PUT("/:id", server.updateCourse)
-	server.router.DELETE("/:id", server.deleteCourse)
+	routes.POST("", server.createCourse)
+	routes.GET("", server.listCourse)
+	routes.GET("/:id", server.getCourseById)
+	routes.PUT("/:id", server.updateCourse)
+	routes.DELETE("/:id", server.deleteCourse)
 }
 
 func (server *Server) setupClassRoutes(routes *gin.RouterGroup) {
-	server.router.POST("/", server.createClass)
-	server.router.GET("/", server.listClass)
-	server.router.GET("/:id", server.getClassById)
-	server.router.PUT("/:id", server.updateClass)
-	server.router.DELETE("/:id", server.deleteClass)
+	routes.POST("", server.createClass)
+	routes.GET("", server.listClass)
+	routes.GET("/:id", server.getClassById)
+	routes.PUT("/:id", server.updateClass)
+	routes.DELETE("/:id", server.deleteClass)
 }
 
 func (server *Server) setupEnrollmentRoutes(routes *gin.RouterGroup) {
-	server.router.POST("/", server.createEnrollment)
-	server.router.GET("/", server.listEnrollment)
-	server.router.GET("/:id", server.getEnrollmentById)
-	server.router.PUT("/:id", server.updateEnrollment)
-	server.router.DELETE("/:id", server.deleteEnrollment)
+	routes.POST("", server.createEnrollment)
+	routes.GET("", server.listEnrollment)
+	routes.GET("/:id", server.getEnrollmentById)
+	routes.PUT("/:id", server.updateEnrollment)
+	routes.DELETE("/:id", server.deleteEnrollment)
 }
 
 func (server *Server) setupSemesterRoutes(routes *gin.RouterGroup) {
-	server.router.POST("/", server.createSemester)
-	server.router.GET("/", server.listSemester)
-	server.router.GET("/:id", server.getSemesterById)
-	server.router.PUT("/:id", server.updateSemester)
-	server.router.DELETE("/:id", server.deleteSemester)
+	routes.POST("", server.createSemester)
+	routes.GET("", server.listSemester)
+	routes.GET("/:id", server.getSemesterById)
+	routes.PUT("/:id", server.updateSemester)
+	routes.DELETE("/:id", server.deleteSemester)
 }
 
 func (server *Server) setuuAttendanceRoutes(routes *gin.RouterGroup) {
-	server.router.POST("/", server.createAttendance)
-	server.router.GET("/", server.listAttendance)
-	server.router.GET("/:id", server.getAttendanceById)
-	server.router.PUT("/:id", server.updateAttendance)
-	server.router.DELETE("/:id", server.deleteAttendance)
+	routes.POST("", server.createAttendance)
+	routes.GET("", server.listAttendance)
+	routes.GET("/:id", server.getAttendanceById)
+	routes.PUT("/:id", server.updateAttendance)
+	routes.DELETE("/:id", server.deleteAttendance)
 }
 
 // Swagger host path and basepath configuration
