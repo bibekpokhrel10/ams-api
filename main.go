@@ -1,6 +1,9 @@
 package main
 
 import (
+	"fmt"
+	"path"
+	"runtime"
 	_ "time/tzdata"
 
 	"github.com/ams-api/internal/config"
@@ -34,6 +37,28 @@ func main() {
 	if err != nil {
 		logrus.Fatal("Error on migrating table :: ", err)
 	}
+	logrus.SetReportCaller(true)
+	logrus.SetFormatter(&logrus.TextFormatter{
+		DisableColors: false,
+		FullTimestamp: true,
+	})
+	// logrus.SetFormatter(&logrus.JSONFormatter{
+	// 	CallerPrettyfier: func(frame *runtime.Frame) (function string, file string) {
+	// 		fileName := path.Base(frame.File) + ":" + strconv.Itoa(frame.Line)
+	// 		//return frame.Function, fileName
+	// 		return "", fileName
+	// 	},
+	// })
+	logrus.SetFormatter(&logrus.TextFormatter{
+		ForceColors:     true,
+		FullTimestamp:   true,
+		TimestampFormat: "2006-01-02 15:04:05",
+		DisableQuote:    true,
+		CallerPrettyfier: func(f *runtime.Frame) (string, string) {
+			filename := path.Base(f.File)
+			return "", fmt.Sprintf("\x1b[36m%s:%d\x1b[0m", filename, f.Line)
+		},
+	})
 	// err = seeder.Load(db)
 	// if err != nil {
 	// 	logrus.Fatal("Unable to load seeder :: ", err)

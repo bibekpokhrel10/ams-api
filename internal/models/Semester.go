@@ -9,18 +9,20 @@ import (
 
 type Semester struct {
 	gorm.Model
-	Name       string `json:"name"`
-	Year       string `json:"year"`
-	ProgramId  uint   `json:"program_id"`
-	TimePeriod string `json:"time_period"`
+	Name       string   `json:"name"`
+	Year       string   `json:"year"`
+	ProgramId  uint     `json:"program_id"`
+	Program    *Program `gorm:"foreignKey:ProgramId" json:"program"`
+	TimePeriod string   `json:"time_period"`
 }
 
 type SemesterResponse struct {
-	Id         uint   `json:"id"`
-	Name       string `json:"name"`
-	Year       string `json:"year"`
-	ProgramId  uint   `json:"program_id"`
-	TimePeriod string `json:"time_period"`
+	Id         uint             `json:"id"`
+	Name       string           `json:"name"`
+	Year       string           `json:"year"`
+	ProgramId  uint             `json:"program_id"`
+	Program    *ProgramResponse `json:"program"`
+	TimePeriod string           `json:"time_period"`
 }
 
 type SemesterRequest struct {
@@ -41,11 +43,16 @@ func NewSemester(req *SemesterRequest) (*Semester, error) {
 }
 
 func (s *Semester) SemesterResponse() *SemesterResponse {
+	programResp := &ProgramResponse{}
+	if s.Program != nil {
+		programResp = s.Program.ProgramResponse()
+	}
 	return &SemesterResponse{
 		Id:         s.ID,
 		Name:       s.Name,
 		ProgramId:  s.ProgramId,
 		Year:       s.Year,
+		Program:    programResp,
 		TimePeriod: s.TimePeriod,
 	}
 }

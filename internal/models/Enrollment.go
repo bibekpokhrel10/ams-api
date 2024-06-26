@@ -4,27 +4,27 @@ import "github.com/jinzhu/gorm"
 
 type Enrollment struct {
 	gorm.Model
-	StudentID uint `json:"student_id"`
-	ClassID   uint `json:"class_id"`
+	StudentId uint `json:"student_id"`
+	ClassId   uint `json:"class_id"`
 	Year      int  `json:"year"`
 	Duration  int  `json:"duration"`
 }
 
 type EnrollmentResponse struct {
 	Id        uint `json:"id"`
-	StudentID uint `json:"student_id"`
-	ClassID   uint `json:"class_id"`
+	StudentId uint `json:"student_id"`
+	ClassId   uint `json:"class_id"`
 }
 
 type EnrollmentRequest struct {
-	StudentID uint `json:"student_id"`
-	ClassID   uint `json:"class_id"`
+	StudentId uint `json:"student_id"`
+	ClassId   uint `json:"class_id"`
 }
 
 func NewEnrollment(req *EnrollmentRequest) (*Enrollment, error) {
 	enrollment := &Enrollment{
-		StudentID: req.StudentID,
-		ClassID:   req.ClassID,
+		StudentId: req.StudentId,
+		ClassId:   req.ClassId,
 	}
 	return enrollment, nil
 }
@@ -32,7 +32,7 @@ func NewEnrollment(req *EnrollmentRequest) (*Enrollment, error) {
 func (e *Enrollment) EnrollmentResponse() *EnrollmentResponse {
 	return &EnrollmentResponse{
 		Id:        e.ID,
-		StudentID: e.StudentID,
-		ClassID:   e.ClassID,
+		StudentId: e.StudentId,
+		ClassId:   e.ClassId,
 	}
 }

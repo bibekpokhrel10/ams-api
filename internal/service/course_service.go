@@ -22,6 +22,10 @@ func (s Service) CreateCourse(req *models.CourseRequest) (*models.CourseResponse
 	if err := req.Validate(); err != nil {
 		return nil, err
 	}
+	_, err := s.repo.FindSemesterById(req.SemesterId)
+	if err != nil {
+		return nil, errors.New("semester not found")
+	}
 	newReq, err := models.NewCourse(req)
 	if err != nil {
 		return nil, err
@@ -68,6 +72,10 @@ func (s Service) UpdateCourse(id uint, req *models.CourseRequest) (*models.Cours
 	datum, err := s.repo.FindCourseById(id)
 	if err != nil {
 		return nil, errors.New("course not found")
+	}
+	_, err = s.repo.FindSemesterById(req.SemesterId)
+	if err != nil {
+		return nil, errors.New("semester not found")
 	}
 	data, err := s.repo.UpdateCourse(datum.ID, req)
 	if err != nil {

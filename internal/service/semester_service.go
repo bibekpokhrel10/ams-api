@@ -22,6 +22,10 @@ func (s Service) CreateSemester(req *models.SemesterRequest) (*models.SemesterRe
 	if err := req.Validate(); err != nil {
 		return nil, err
 	}
+	_, err := s.repo.FindProgramById(req.ProgramId)
+	if err != nil {
+		return nil, errors.New("program not found")
+	}
 	newReq, err := models.NewSemester(req)
 	if err != nil {
 		return nil, err
@@ -68,6 +72,10 @@ func (s Service) UpdateSemester(id uint, req *models.SemesterRequest) (*models.S
 	datum, err := s.repo.FindSemesterById(id)
 	if err != nil {
 		return nil, errors.New("semester not found")
+	}
+	_, err = s.repo.FindProgramById(req.ProgramId)
+	if err != nil {
+		return nil, errors.New("program not found")
 	}
 	data, err := s.repo.UpdateSemester(datum.ID, req)
 	if err != nil {

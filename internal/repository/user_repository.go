@@ -11,6 +11,7 @@ type IUser interface {
 	FindUserByEmail(email string) (*models.User, error)
 	CheckEmailAvailable(email string) bool
 	FindUserByUsername(username string) (*models.User, error)
+	FindUserById(id uint) (*models.User, error)
 }
 
 func (r *Repository) CreateUser(user *models.User) (*models.User, error) {
@@ -44,6 +45,15 @@ func (r *Repository) FindUserByUsername(username string) (*models.User, error) {
 	db := r.db.Model(models.User{}).
 		Where("username = ? or email = ?", strings.ToLower(username), strings.ToLower(username))
 	err := db.Take(user).Error
+	if err != nil {
+		return nil, err
+	}
+	return user, err
+}
+
+func (r *Repository) FindUserById(id uint) (*models.User, error) {
+	user := &models.User{}
+	err := r.db.Model(models.User{}).Where("id = ?", id).Take(user).Error
 	if err != nil {
 		return nil, err
 	}

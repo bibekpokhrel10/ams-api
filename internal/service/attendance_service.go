@@ -22,6 +22,17 @@ func (s Service) CreateAttendance(req *models.AttendanceRequest) (*models.Attend
 	if err := req.Validate(); err != nil {
 		return nil, err
 	}
+	_, err := s.repo.FindClassById(req.ClassId)
+	if err != nil {
+		return nil, errors.New("class not found")
+	}
+	user, err := s.repo.FindUserById(req.StudentId)
+	if err != nil {
+		return nil, errors.New("student not found")
+	}
+	if user.UserType != "student" {
+		return nil, errors.New("student not found")
+	}
 	newReq, err := models.NewAttendance(req)
 	if err != nil {
 		return nil, err
@@ -64,6 +75,17 @@ func (s Service) UpdateAttendance(id uint, req *models.AttendanceRequest) (*mode
 	req.Prepare()
 	if err := req.Validate(); err != nil {
 		return nil, err
+	}
+	_, err := s.repo.FindClassById(req.ClassId)
+	if err != nil {
+		return nil, errors.New("class not found")
+	}
+	user, err := s.repo.FindUserById(req.StudentId)
+	if err != nil {
+		return nil, errors.New("student not found")
+	}
+	if user.UserType != "student" {
+		return nil, errors.New("student not found")
 	}
 	datum, err := s.repo.FindAttendanceById(id)
 	if err != nil {

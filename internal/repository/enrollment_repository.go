@@ -41,8 +41,8 @@ func (r *Repository) FindEnrollmentById(id uint) (*models.Enrollment, error) {
 func (r *Repository) UpdateEnrollment(id uint, req *models.EnrollmentRequest) (*models.Enrollment, error) {
 	data := &models.Enrollment{}
 	err := r.db.Model(&models.Enrollment{}).Where("id = ?", id).Updates(map[string]interface{}{
-		"student_id": req.StudentID,
-		"class_id":   req.ClassID,
+		"student_id": req.StudentId,
+		"class_id":   req.ClassId,
 	}).Error
 	if err != nil {
 		return nil, err

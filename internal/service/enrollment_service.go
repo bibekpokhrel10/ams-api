@@ -18,6 +18,17 @@ func (s Service) CreateEnrollment(req *models.EnrollmentRequest) (*models.Enroll
 	if req == nil {
 		return nil, errors.New("enrollment request is nil while creating enrollment")
 	}
+	_, err := s.repo.FindClassById(req.ClassId)
+	if err != nil {
+		return nil, errors.New("class not found")
+	}
+	user, err := s.repo.FindUserById(req.StudentId)
+	if err != nil {
+		return nil, errors.New("student not found")
+	}
+	if user.UserType != "student" {
+		return nil, errors.New("student not found")
+	}
 	newReq, err := models.NewEnrollment(req)
 	if err != nil {
 		return nil, err
@@ -60,6 +71,17 @@ func (s Service) UpdateEnrollment(id uint, req *models.EnrollmentRequest) (*mode
 	datum, err := s.repo.FindEnrollmentById(id)
 	if err != nil {
 		return nil, errors.New("enrollment not found")
+	}
+	_, err = s.repo.FindClassById(req.ClassId)
+	if err != nil {
+		return nil, errors.New("class not found")
+	}
+	user, err := s.repo.FindUserById(req.StudentId)
+	if err != nil {
+		return nil, errors.New("student not found")
+	}
+	if user.UserType != "student" {
+		return nil, errors.New("student not found")
 	}
 	data, err := s.repo.UpdateEnrollment(datum.ID, req)
 	if err != nil {

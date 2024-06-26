@@ -41,8 +41,8 @@ func (r *Repository) FindAttendanceById(id uint) (*models.Attendance, error) {
 func (r *Repository) UpdateAttendance(id uint, req *models.AttendanceRequest) (*models.Attendance, error) {
 	data := &models.Attendance{}
 	err := r.db.Model(&models.Attendance{}).Where("id = ?", id).Updates(map[string]interface{}{
-		"student_id": req.StudentID,
-		"class_id":   req.ClassID,
+		"student_id": req.StudentId,
+		"class_id":   req.ClassId,
 		"date":       req.Date,
 		"is_present": req.IsPresent,
 		"remarks":    req.Remarks,

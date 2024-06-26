@@ -22,6 +22,17 @@ func (s Service) CreateClass(req *models.ClassRequest) (*models.ClassResponse, e
 	if err := req.Validate(); err != nil {
 		return nil, err
 	}
+	_, err := s.repo.FindCourseById(req.CourseId)
+	if err != nil {
+		return nil, errors.New("course not found")
+	}
+	user, err := s.repo.FindUserById(req.InstructorID)
+	if err != nil {
+		return nil, errors.New("instructor not found")
+	}
+	if user.UserType != "teacher" {
+		return nil, errors.New("instructor not found")
+	}
 	newReq, err := models.NewClass(req)
 	if err != nil {
 		return nil, err
@@ -68,6 +79,17 @@ func (s Service) UpdateClass(id uint, req *models.ClassRequest) (*models.ClassRe
 	datum, err := s.repo.FindClassById(id)
 	if err != nil {
 		return nil, errors.New("class not found")
+	}
+	_, err = s.repo.FindCourseById(req.CourseId)
+	if err != nil {
+		return nil, errors.New("course not found")
+	}
+	user, err := s.repo.FindUserById(req.InstructorID)
+	if err != nil {
+		return nil, errors.New("instructor not found")
+	}
+	if user.UserType != "teacher" {
+		return nil, errors.New("instructor not found")
 	}
 	data, err := s.repo.UpdateClass(datum.ID, req)
 	if err != nil {

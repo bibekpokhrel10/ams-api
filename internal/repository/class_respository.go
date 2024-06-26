@@ -42,7 +42,6 @@ func (r *Repository) UpdateClass(id uint, req *models.ClassRequest) (*models.Cla
 	data := &models.Class{}
 	err := r.db.Model(&models.Class{}).Where("id = ?", id).Updates(map[string]interface{}{
 		"course_id":     req.CourseId,
-		"semester_id":   req.SemesterId,
 		"year":          req.Year,
 		"schedule":      req.Schedule,
 		"instructor_id": req.InstructorID,
