@@ -13,6 +13,7 @@ type IRepository interface {
 	ISemester
 	IEnrollment
 	IProgram
+	IInstitution
 }
 
 // Repostory type struct
@@ -31,5 +32,12 @@ func NewRepository(db *gorm.DB) IRepository {
 func AutoMigrate(db *gorm.DB) error {
 	return db.AutoMigrate(
 		models.User{},
+		models.Attendance{},
+		models.Class{},
+		models.Course{},
+		models.Semester{},
+		models.Enrollment{},
+		models.Program{},
+		models.Institution{},
 	).Error
 }

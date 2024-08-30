@@ -19,7 +19,7 @@ import (
 // @description This is a iGaming-Main-API server.
 // @termsOfService http://swagger.io/terms/
 
-// @contact.email info.igaming.com
+// @contact.email info.ams.com
 // @securityDefinitions.apikey ApiKeyAuth
 // @in Header
 // @name Authorization

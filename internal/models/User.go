@@ -5,7 +5,6 @@ import (
 	"html"
 	"regexp"
 	"strings"
-	"time"
 	"unicode"
 
 	"github.com/ams-api/util/password"
@@ -14,46 +13,43 @@ import (
 
 type User struct {
 	gorm.Model
-	UserType      string    `json:"user_type"` // teacher/student
-	FirstName     string    `json:"first_name"`
-	LastName      string    `json:"last_name"`
-	Email         string    `json:"email"`
-	ContactNumber string    `json:"contact_number"`
-	Department    string    `json:"department"`
-	DateOfBirth   time.Time `json:"date_of_birth"`
-	Gender        string    `json:"gender"`
-	Password      string    `json:"password"`
-	IsAdmin       bool      `json:"is_admin"`
-	IsActive      bool      `json:"is_active"`
+	UserType      string `json:"user_type"` // teacher/student
+	FirstName     string `json:"first_name"`
+	LastName      string `json:"last_name"`
+	Email         string `json:"email"`
+	ContactNumber string `json:"contact_number"`
+	DateOfBirth   string `json:"date_of_birth"`
+	Gender        string `json:"gender"` // male, female, others
+	Password      string `json:"password"`
+	IsAdmin       bool   `json:"is_admin"`
+	IsActive      bool   `json:"is_active"`
 }
 
 type UserRequest struct {
-	UserType      string    `json:"user_type"` // teacher/student
-	FirstName     string    `json:"first_name"`
-	LastName      string    `json:"last_name"`
-	Email         string    `json:"email"`
-	ContactNumber string    `json:"contact_number"`
-	Department    string    `json:"department"`
-	DateOfBirth   time.Time `json:"date_of_birth"`
-	Gender        string    `json:"gender"`
-	Password      string    `json:"password"`
-	IsAdmin       bool      `json:"is_admin"`
-	IsActive      bool      `json:"is_active"`
+	UserType      string `json:"user_type"` // teacher/student
+	FirstName     string `json:"first_name"`
+	LastName      string `json:"last_name"`
+	Email         string `json:"email"`
+	ContactNumber string `json:"contact_number"`
+	DateOfBirth   string `json:"date_of_birth"`
+	Gender        string `json:"gender"`
+	Password      string `json:"password"`
+	IsAdmin       bool   `json:"is_admin"`
+	IsActive      bool   `json:"is_active"`
 }
 
 type UserResponse struct {
-	Id            uint      `json:"id"`
-	UserType      string    `json:"user_type"` // teacher/student
-	FirstName     string    `json:"first_name"`
-	LastName      string    `json:"last_name"`
-	Email         string    `json:"email"`
-	ContactNumber string    `json:"contact_number"`
-	Department    string    `json:"department"`
-	DateOfBirth   time.Time `json:"date_of_birth"`
-	Gender        string    `json:"gender"`
-	Password      string    `json:"password"`
-	IsAdmin       bool      `json:"is_admin"`
-	IsActive      bool      `json:"is_active"`
+	Id            uint   `json:"id"`
+	UserType      string `json:"user_type"` // teacher/student
+	FirstName     string `json:"first_name"`
+	LastName      string `json:"last_name"`
+	Email         string `json:"email"`
+	ContactNumber string `json:"contact_number"`
+	DateOfBirth   string `json:"date_of_birth"`
+	Gender        string `json:"gender"`
+	Password      string `json:"password"`
+	IsAdmin       bool   `json:"is_admin"`
+	IsActive      bool   `json:"is_active"`
 }
 
 type LoginRequest struct {
@@ -73,7 +69,6 @@ func NewUser(req *UserRequest) (*User, error) {
 		LastName:      req.LastName,
 		Email:         req.Email,
 		ContactNumber: req.ContactNumber,
-		Department:    req.Department,
 		DateOfBirth:   req.DateOfBirth,
 		Gender:        req.Gender,
 		Password:      req.Password,
@@ -101,7 +96,6 @@ func (u *User) UserResponse() *UserResponse {
 		LastName:      u.LastName,
 		Email:         u.Email,
 		ContactNumber: u.ContactNumber,
-		Department:    u.Department,
 		DateOfBirth:   u.DateOfBirth,
 		Gender:        u.Gender,
 		Password:      u.Password,

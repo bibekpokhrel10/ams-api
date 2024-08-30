@@ -1,24 +1,29 @@
 package controller
 
 import (
+	docs "github.com/ams-api/docs"
 	"github.com/ams-api/internal/middleware"
 	"github.com/gin-gonic/gin"
+	swaggerfiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func (server *Server) setupRouter() {
 	server.router.Use(middleware.CORSMiddleware())
-	// server.setupSwagger()
+	server.setupSwagger()
 	apiRoutes := server.router.Group("/api/v1")
 
 	server.setupBasicRoutes(apiRoutes)
 	server.setupUserRoutes(apiRoutes.Group("/users"))
 	_ = apiRoutes.Use(middleware.AuthMiddleware(server.tokenMaker, server.service))
+	server.setupInstitutionRoutes(apiRoutes.Group("/institutions"))
 	server.setupProgramRoutes(apiRoutes.Group("/programs"))
 	server.setupSemesterRoutes(apiRoutes.Group("/semesters"))
 	server.setupCourseRoutes(apiRoutes.Group("/courses"))
 	server.setupClassRoutes(apiRoutes.Group("/classes"))
 	server.setupEnrollmentRoutes(apiRoutes.Group("/enrollments"))
-	server.setuuAttendanceRoutes(apiRoutes.Group("/attendances"))
+	server.setupAttendanceRoutes(apiRoutes.Group("/attendances"))
+
 }
 
 func (server *Server) setupBasicRoutes(routes *gin.RouterGroup) {
@@ -28,6 +33,14 @@ func (server *Server) setupBasicRoutes(routes *gin.RouterGroup) {
 func (server *Server) setupUserRoutes(routes *gin.RouterGroup) {
 	routes.POST("/register", server.createUser)
 	routes.POST("/login", server.loginUser)
+}
+
+func (server *Server) setupInstitutionRoutes(routes *gin.RouterGroup) {
+	routes.POST("", server.createInstitution)
+	routes.GET("", server.listInstitution)
+	routes.GET("/:id", server.getInstitutionById)
+	routes.PUT("/:id", server.updateInstitution)
+	routes.DELETE("/:id", server.deleteInstitution)
 }
 
 func (server *Server) setupProgramRoutes(routes *gin.RouterGroup) {
@@ -70,7 +83,7 @@ func (server *Server) setupEnrollmentRoutes(routes *gin.RouterGroup) {
 	routes.DELETE("/:id", server.deleteEnrollment)
 }
 
-func (server *Server) setuuAttendanceRoutes(routes *gin.RouterGroup) {
+func (server *Server) setupAttendanceRoutes(routes *gin.RouterGroup) {
 	routes.POST("", server.createAttendance)
 	routes.GET("", server.listAttendance)
 	routes.GET("/:id", server.getAttendanceById)
@@ -79,16 +92,16 @@ func (server *Server) setuuAttendanceRoutes(routes *gin.RouterGroup) {
 }
 
 // Swagger host path and basepath configuration
-// func (server *Server) setupSwagger() {
-// 	hostPath := server.config.HOSTPATH
-// 	if string_helper.IsEmptyString(hostPath) {
-// 		hostPath = "localhost:8080"
-// 	}
-// 	basePath := server.config.BASEPATH
-// 	if string_helper.IsEmptyString(hostPath) {
-// 		basePath = "/api/v1"
-// 	}
-// 	docs.SwaggerInfo.Host = hostPath
-// 	docs.SwaggerInfo.BasePath = basePath
-// 	server.router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
-// }
+func (server *Server) setupSwagger() {
+	hostPath := server.config.HOSTPATH
+	if hostPath == "" {
+		hostPath = "localhost:8080"
+	}
+	basePath := server.config.BASEPATH
+	if hostPath == "" {
+		basePath = "/api/v1"
+	}
+	docs.SwaggerInfo.Host = hostPath
+	docs.SwaggerInfo.BasePath = basePath
+	server.router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
+}

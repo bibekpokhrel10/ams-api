@@ -13,6 +13,7 @@ import (
 func (server *Server) createUser(ctx *gin.Context) {
 	var req *models.UserRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
+		logrus.Error("error while creating user :: ", err)
 		ctx.JSON(http.StatusBadRequest, response.ERROR(err))
 		return
 	}

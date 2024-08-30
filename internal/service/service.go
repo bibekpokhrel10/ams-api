@@ -10,6 +10,7 @@ type IService interface {
 	IAttendance
 	IEnrollment
 	IProgram
+	IInstitution
 }
 
 type Service struct {
