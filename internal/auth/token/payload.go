@@ -11,8 +11,6 @@ import (
 type Payload struct {
 	ID        uuid.UUID `json:"id"`
 	UserId    uint      `json:"user_id"`
-	AgentId   uint      `json:"agent_id"`
-	PlayerId  uint      `json:"player_id"`
 	IssuedAt  time.Time `json:"issued_at"`
 	ExpiredAt time.Time `json:"expired_at"`
 }

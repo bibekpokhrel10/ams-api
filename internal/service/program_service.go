@@ -16,10 +16,14 @@ type IProgram interface {
 
 func (s Service) CreateProgram(req *models.ProgramRequest) (*models.ProgramResponse, error) {
 	if req == nil {
-		return nil, errors.New("game category request is nil while creating game category")
+		return nil, errors.New("program request is nil while creating game category")
 	}
 	req.Prepare()
 	if err := req.Validate(); err != nil {
+		return nil, err
+	}
+	_, err := s.repo.FindInstitutionById(req.InstitutionId)
+	if err != nil {
 		return nil, err
 	}
 	newReq, err := models.NewProgram(req)

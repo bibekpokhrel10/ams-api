@@ -1,11 +1,13 @@
 package controller
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/ams-api/internal/auth/token"
 	"github.com/ams-api/internal/config"
 	"github.com/ams-api/internal/service"
+	"github.com/ams-api/util"
 	"github.com/gin-gonic/gin"
 )
 
@@ -41,28 +43,15 @@ func (server *Server) Start(address string) error {
 	return server.router.Run(fmt.Sprintf(":%s", address))
 }
 
-// func (server *Server) getAuthPayload(ctx *gin.Context) (*token.Payload, error) {
-// 	pl := ctx.Value("authorization_payload")
-// 	var payload *token.Payload
-// 	util.ConvertType(pl, &payload)
-// 	if payload == nil {
-// 		return nil, errors.New("unauthorized")
-// 	}
-// 	var value uint
-// 	key := fmt.Sprintf("player-user-%d", payload.UserId)
-// 	ok := server.cache.Get(key, &value)
-// 	if !ok {
-// 		player, err := server.service.GetPlayerByUserId(payload.UserId)
-// 		pid := uint(0)
-// 		if err == nil {
-// 			pid = player.ID
-// 		}
-// 		value := pid
-// 		server.cache.Set(key, value)
-// 	}
-// 	payload.PlayerId = value
-// 	return payload, nil
-// }
+func (server *Server) getAuthPayload(ctx *gin.Context) (*token.Payload, error) {
+	pl := ctx.Value("authorization_payload")
+	var payload *token.Payload
+	util.ConvertType(pl, &payload)
+	if payload == nil {
+		return nil, errors.New("unauthorized")
+	}
+	return payload, nil
+}
 
 // func (server *Server) getHeaderXAgentCode(ctx *gin.Context) (string, error) {
 // 	ac := ctx.Value("agentCode")

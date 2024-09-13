@@ -13,7 +13,10 @@ type IUser interface {
 	CreateUser(req *models.UserRequest) (*models.UserResponse, error)
 	LoginUser(req *models.LoginRequest) (*models.LoginResponse, int, error)
 	GetUserByEmail(email string) (*models.UserResponse, error)
+	GetUserById(id uint) (*models.UserResponse, error)
+	ListAllUsers() ([]models.UserResponse, error)
 	CheckEmailAvailable(email string) bool
+	ActivateDeactivateUser(id uint, isActive bool) (*models.UserResponse, error)
 }
 
 func (s Service) CreateUser(req *models.UserRequest) (*models.UserResponse, error) {
@@ -44,6 +47,14 @@ func (s Service) GetUserByEmail(email string) (*models.UserResponse, error) {
 	return user.UserResponse(), nil
 }
 
+func (s Service) GetUserById(id uint) (*models.UserResponse, error) {
+	user, err := s.repo.FindUserById(id)
+	if err != nil {
+		return nil, err
+	}
+	return user.UserResponse(), nil
+}
+
 func (s Service) CheckEmailAvailable(email string) bool {
 	return s.repo.CheckEmailAvailable(email)
 }
@@ -66,4 +77,29 @@ func (s Service) LoginUser(req *models.LoginRequest) (*models.LoginResponse, int
 	}
 	result.User = user.UserResponse()
 	return result, http.StatusOK, nil
+}
+
+func (s Service) ListAllUsers() ([]models.UserResponse, error) {
+	datas, err := s.repo.FindAllUsers()
+	if err != nil {
+		logrus.Errorf("error finding all users :: %v", err)
+		return nil, err
+	}
+	var responses []models.UserResponse
+	for _, data := range datas {
+		responses = append(responses, *data.UserResponse())
+	}
+	return responses, nil
+}
+
+func (s Service) ActivateDeactivateUser(id uint, isActive bool) (*models.UserResponse, error) {
+	user, err := s.repo.FindUserById(id)
+	if err != nil {
+		return nil, err
+	}
+	data, err := s.repo.ActivateUser(user.ID, isActive)
+	if err != nil {
+		return nil, err
+	}
+	return data.UserResponse(), nil
 }

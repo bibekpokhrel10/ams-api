@@ -14,8 +14,9 @@ func (server *Server) setupRouter() {
 	apiRoutes := server.router.Group("/api/v1")
 
 	server.setupBasicRoutes(apiRoutes)
-	server.setupUserRoutes(apiRoutes.Group("/users"))
+	server.setupLoginRoutes(apiRoutes)
 	_ = apiRoutes.Use(middleware.AuthMiddleware(server.tokenMaker, server.service))
+	server.setupUserRoutes(apiRoutes.Group("/users"))
 	server.setupInstitutionRoutes(apiRoutes.Group("/institutions"))
 	server.setupProgramRoutes(apiRoutes.Group("/programs"))
 	server.setupSemesterRoutes(apiRoutes.Group("/semesters"))
@@ -23,7 +24,6 @@ func (server *Server) setupRouter() {
 	server.setupClassRoutes(apiRoutes.Group("/classes"))
 	server.setupEnrollmentRoutes(apiRoutes.Group("/enrollments"))
 	server.setupAttendanceRoutes(apiRoutes.Group("/attendances"))
-
 }
 
 func (server *Server) setupBasicRoutes(routes *gin.RouterGroup) {
@@ -31,6 +31,12 @@ func (server *Server) setupBasicRoutes(routes *gin.RouterGroup) {
 }
 
 func (server *Server) setupUserRoutes(routes *gin.RouterGroup) {
+	routes.GET("/profile", server.getUserFromToken)
+	routes.GET("", server.getAllUsers)
+	routes.PUT("/:id/activate", server.activateUser)
+}
+
+func (server *Server) setupLoginRoutes(routes *gin.RouterGroup) {
 	routes.POST("/register", server.createUser)
 	routes.POST("/login", server.loginUser)
 }

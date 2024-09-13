@@ -28,16 +28,16 @@ func (p *Institution) InstitutionResponse() *InstitutionResponse {
 	}
 }
 
-func NewInstitution(req *InstitutionRequest) (*Institution, error) {
+func NewInstitution(req *InstitutionRequest) *Institution {
 	Institution := &Institution{
 		Name: req.Name,
 	}
-	return Institution, nil
+	return Institution
 }
 
 func (p *InstitutionRequest) Validate() error {
 	if p.Name == "" {
-		return errors.New("Institution name is required")
+		return errors.New("institution name is required")
 	}
 	return nil
 }

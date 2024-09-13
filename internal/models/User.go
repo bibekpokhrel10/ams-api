@@ -50,6 +50,7 @@ type UserResponse struct {
 	Password      string `json:"password"`
 	IsAdmin       bool   `json:"is_admin"`
 	IsActive      bool   `json:"is_active"`
+	Role          string `json:"role"`
 }
 
 type LoginRequest struct {
@@ -60,6 +61,9 @@ type LoginRequest struct {
 type LoginResponse struct {
 	Token string        `json:"token"`
 	User  *UserResponse `json:"user"`
+}
+type ActivateDeactivateUserRequest struct {
+	IsActive bool `json:"is_active"`
 }
 
 func NewUser(req *UserRequest) (*User, error) {

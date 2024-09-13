@@ -3,6 +3,7 @@ package controller
 import (
 	"errors"
 	"net/http"
+	"strconv"
 
 	"github.com/ams-api/internal/models"
 	"github.com/ams-api/internal/response"
@@ -46,6 +47,50 @@ func (server *Server) loginUser(ctx *gin.Context) {
 	res.Token = accessToken
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, response.ERROR(err))
+		return
+	}
+	ctx.JSON(http.StatusOK, response.Success(res))
+}
+
+func (server *Server) getUserFromToken(ctx *gin.Context) {
+	payload, err := server.getAuthPayload(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, response.ERROR(err))
+		return
+	}
+	data, err := server.service.GetUserById(payload.UserId)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, response.ERROR(err))
+		return
+	}
+	data.Role = "admin"
+	ctx.JSON(http.StatusOK, response.Success(data))
+}
+
+func (server *Server) getAllUsers(ctx *gin.Context) {
+	datas, err := server.service.ListAllUsers()
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, response.ERROR(err))
+		return
+	}
+	ctx.JSON(http.StatusOK, response.Success(datas))
+}
+
+func (server *Server) activateUser(ctx *gin.Context) {
+	id := ctx.Param("id")
+	moduleId, err := strconv.ParseUint(id, 10, 64)
+	if err != nil {
+		ctx.JSON(http.StatusUnprocessableEntity, response.ERROR(err))
+		return
+	}
+	var req *models.ActivateDeactivateUserRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, response.ERROR(err))
+		return
+	}
+	res, err := server.service.ActivateDeactivateUser(uint(moduleId), req.IsActive)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, response.ERROR(err))
 		return
 	}
 	ctx.JSON(http.StatusOK, response.Success(res))

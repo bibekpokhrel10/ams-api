@@ -12,6 +12,8 @@ type IUser interface {
 	CheckEmailAvailable(email string) bool
 	FindUserByUsername(username string) (*models.User, error)
 	FindUserById(id uint) (*models.User, error)
+	FindAllUsers() ([]models.User, error)
+	ActivateUser(id uint, isActive bool) (*models.User, error)
 }
 
 func (r *Repository) CreateUser(user *models.User) (*models.User, error) {
@@ -54,6 +56,24 @@ func (r *Repository) FindUserByUsername(username string) (*models.User, error) {
 func (r *Repository) FindUserById(id uint) (*models.User, error) {
 	user := &models.User{}
 	err := r.db.Model(models.User{}).Where("id = ?", id).Take(user).Error
+	if err != nil {
+		return nil, err
+	}
+	return user, err
+}
+
+func (r *Repository) FindAllUsers() ([]models.User, error) {
+	datas := []models.User{}
+	err := r.db.Model(models.User{}).Find(&datas).Error
+	if err != nil {
+		return nil, err
+	}
+	return datas, err
+}
+
+func (r *Repository) ActivateUser(id uint, isActive bool) (*models.User, error) {
+	user := &models.User{}
+	err := r.db.Model(models.User{}).Where("id = ?", id).Update("is_active", isActive).Take(user).Error
 	if err != nil {
 		return nil, err
 	}

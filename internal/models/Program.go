@@ -21,8 +21,9 @@ type ProgramResponse struct {
 }
 
 type ProgramRequest struct {
-	Name string `json:"name"`
-	Type string `json:"type"`
+	InstitutionId uint   `json:"institution_id"`
+	Name          string `json:"name"`
+	Type          string `json:"type"`
 }
 
 func (p *Program) ProgramResponse() *ProgramResponse {
@@ -45,13 +46,13 @@ func (p *ProgramRequest) Validate() error {
 	if p.Name == "" {
 		return errors.New("program name is required")
 	}
-	if p.Type == "" {
-		return errors.New("program type is required")
-	} else {
-		if p.Type != "undergraduate" && p.Type != "graduate" {
-			return errors.New("invalid program type, must be undergraduate or graduate")
-		}
-	}
+	// if p.Type == "" {
+	// 	return errors.New("program type is required")
+	// } else {
+	// 	if p.Type != "undergraduate" && p.Type != "graduate" {
+	// 		return errors.New("invalid program type, must be undergraduate or graduate")
+	// 	}
+	// }
 	return nil
 }
 

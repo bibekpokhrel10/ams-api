@@ -34,12 +34,12 @@ func (server *Server) listInstitution(ctx *gin.Context) {
 
 func (server *Server) getInstitutionById(ctx *gin.Context) {
 	id := ctx.Param("id")
-	depId, err := strconv.ParseUint(id, 10, 64)
+	moduleId, err := strconv.ParseUint(id, 10, 64)
 	if err != nil {
 		ctx.JSON(http.StatusUnprocessableEntity, response.ERROR(err))
 		return
 	}
-	data, err := server.service.GetInstitutionById(uint(depId))
+	data, err := server.service.GetInstitutionById(uint(moduleId))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, response.ERROR(err))
 		return
