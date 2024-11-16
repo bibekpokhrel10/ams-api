@@ -3,21 +3,25 @@ package models
 import (
 	"errors"
 	"strings"
+	"time"
 
 	"github.com/jinzhu/gorm"
 )
 
 type Program struct {
 	gorm.Model
-	Name     string `json:"name"`
-	Type     string `json:"type"`
-	Duration string `json:"duration"`
+	InstitutionId uint   `json:"institution_id"`
+	Name          string `json:"name"`
+	Type          string `json:"type"`
+	Duration      string `json:"duration"`
 }
 
 type ProgramResponse struct {
-	Id   uint   `json:"id"`
-	Name string `json:"name"`
-	Type string `json:"type"`
+	Id            uint      `json:"id"`
+	CreatedAt     time.Time `json:"created_at"`
+	InstitutionId uint      `json:"institution_id"`
+	Name          string    `json:"name"`
+	Type          string    `json:"type"`
 }
 
 type ProgramRequest struct {
@@ -26,18 +30,26 @@ type ProgramRequest struct {
 	Type          string `json:"type"`
 }
 
+type ListProgramRequest struct {
+	ListRequest
+	InstitutionId uint `form:"institution_id"`
+}
+
 func (p *Program) ProgramResponse() *ProgramResponse {
 	return &ProgramResponse{
-		Id:   p.ID,
-		Name: p.Name,
-		Type: p.Type,
+		Id:            p.ID,
+		CreatedAt:     p.CreatedAt,
+		InstitutionId: p.InstitutionId,
+		Name:          p.Name,
+		Type:          p.Type,
 	}
 }
 
 func NewProgram(req *ProgramRequest) (*Program, error) {
 	program := &Program{
-		Name: req.Name,
-		Type: req.Type,
+		InstitutionId: req.InstitutionId,
+		Name:          req.Name,
+		Type:          req.Type,
 	}
 	return program, nil
 }

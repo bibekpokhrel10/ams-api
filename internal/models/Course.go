@@ -3,6 +3,7 @@ package models
 import (
 	"errors"
 	"strings"
+	"time"
 
 	"github.com/jinzhu/gorm"
 )
@@ -25,11 +26,17 @@ type CourseRequest struct {
 
 type CourseResponse struct {
 	Id         uint              `json:"id"`
+	CreatedAt  time.Time         `json:"created_at"`
 	Code       string            `json:"code"`
 	Name       string            `json:"name"`
 	Credits    int               `json:"credits"`
 	SemesterId uint              `json:"semester_id"`
 	Semester   *SemesterResponse `json:"semester"`
+}
+
+type ListCourseRequest struct {
+	ListRequest
+	SemesterId uint `form:"semester_id"`
 }
 
 func (c *Course) CourseResponse() *CourseResponse {
@@ -38,6 +45,7 @@ func (c *Course) CourseResponse() *CourseResponse {
 		semesterResp = c.Semester.SemesterResponse()
 	}
 	return &CourseResponse{
+		CreatedAt:  c.CreatedAt,
 		Id:         c.ID,
 		Code:       c.Code,
 		Name:       c.Name,

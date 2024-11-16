@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"errors"
 	"net/http"
 	"strconv"
 
@@ -18,11 +17,6 @@ func (server *Server) createUser(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, response.ERROR(err))
 		return
 	}
-	isAvailable := server.service.CheckEmailAvailable(req.Email)
-	if isAvailable {
-		ctx.JSON(http.StatusConflict, response.ERROR(errors.New("email already exists")))
-		return
-	}
 	user, err := server.service.CreateUser(req)
 	if err != nil {
 		logrus.Error("error while registering user :: ", err)
@@ -35,6 +29,7 @@ func (server *Server) createUser(ctx *gin.Context) {
 func (server *Server) loginUser(ctx *gin.Context) {
 	var req *models.LoginRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
+		logrus.Error("error while login user :: ", err)
 		ctx.JSON(http.StatusBadRequest, response.ERROR(err))
 		return
 	}
@@ -68,12 +63,18 @@ func (server *Server) getUserFromToken(ctx *gin.Context) {
 }
 
 func (server *Server) getAllUsers(ctx *gin.Context) {
-	datas, err := server.service.ListAllUsers()
+	var req models.ListUserRequest
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, response.ERROR(err))
+		return
+	}
+	req.Prepare()
+	datas, count, err := server.service.ListAllUsers(&req)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, response.ERROR(err))
 		return
 	}
-	ctx.JSON(http.StatusOK, response.Success(datas))
+	ctx.JSON(http.StatusOK, response.Success(datas, response.WithPagination(count, int(req.Page), int(req.Size))))
 }
 
 func (server *Server) activateUser(ctx *gin.Context) {
@@ -94,4 +95,64 @@ func (server *Server) activateUser(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(http.StatusOK, response.Success(res))
+}
+
+func (server *Server) updateUserPassword(ctx *gin.Context) {
+	var req *models.UpdateUserPasswordRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, response.ERROR(err))
+		return
+	}
+	id := ctx.Param("id")
+	userId, err := strconv.ParseUint(id, 10, 64)
+	if err != nil {
+		ctx.JSON(http.StatusUnprocessableEntity, response.ERROR(err))
+		return
+	}
+	data, err := server.service.UpdateUserPassword(uint(userId), req)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, response.ERROR(err))
+		return
+	}
+	ctx.JSON(http.StatusOK, response.Success(data))
+}
+
+func (server *Server) deleteUser(ctx *gin.Context) {
+	id := ctx.Param("id")
+	userId, err := strconv.ParseUint(id, 10, 64)
+	if err != nil {
+		ctx.JSON(http.StatusUnprocessableEntity, response.ERROR(err))
+		return
+	}
+	err = server.service.DeleteUser(uint(userId))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, response.ERROR(err))
+		return
+	}
+	ctx.JSON(http.StatusOK, response.Success("successfully deleted user"))
+}
+
+func (server *Server) updateUserType(ctx *gin.Context) {
+	payload, err := server.getAuthPayload(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, response.ERROR(err))
+		return
+	}
+	var req *models.UpdateUserType
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, response.ERROR(err))
+		return
+	}
+	id := ctx.Param("id")
+	userId, err := strconv.ParseUint(id, 10, 64)
+	if err != nil {
+		ctx.JSON(http.StatusUnprocessableEntity, response.ERROR(err))
+		return
+	}
+	data, err := server.service.UpdateUserType(payload.UserId, uint(userId), req.UserType)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, response.ERROR(err))
+		return
+	}
+	ctx.JSON(http.StatusOK, response.Success(data))
 }

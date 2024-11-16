@@ -29,12 +29,18 @@ func (server *Server) createCourse(ctx *gin.Context) {
 }
 
 func (server *Server) listCourse(ctx *gin.Context) {
-	datas, err := server.service.ListCourse()
+	var req *models.ListCourseRequest
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, response.ERROR(err))
+		return
+	}
+	req.Prepare()
+	datas, count, err := server.service.ListCourse(req)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, response.ERROR(err))
 		return
 	}
-	ctx.JSON(http.StatusOK, response.Success(datas))
+	ctx.JSON(http.StatusOK, response.Success(datas, response.WithPagination(count, int(req.Page), int(req.Size))))
 }
 
 func (server *Server) getCourseById(ctx *gin.Context) {

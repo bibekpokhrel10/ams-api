@@ -11,7 +11,7 @@ import (
 type IInstitution interface {
 	CreateInstitution(req *models.InstitutionRequest) (*models.InstitutionResponse, error)
 	GetInstitutionById(id uint) (*models.InstitutionResponse, error)
-	ListInstitution() ([]models.InstitutionResponse, error)
+	ListInstitution(req *models.ListInstitutionRequest) ([]models.InstitutionResponse, int, error)
 	DeleteInstitution(id uint) error
 	UpdateInstitution(id uint, req *models.InstitutionRequest) (*models.InstitutionResponse, error)
 }
@@ -44,17 +44,17 @@ func (s Service) GetInstitutionById(id uint) (*models.InstitutionResponse, error
 	return data.InstitutionResponse(), nil
 }
 
-func (s Service) ListInstitution() ([]models.InstitutionResponse, error) {
-	datas, err := s.repo.FindAllInstitution()
+func (s Service) ListInstitution(req *models.ListInstitutionRequest) ([]models.InstitutionResponse, int, error) {
+	datas, count, err := s.repo.FindAllInstitution(req)
 	if err != nil {
 		logrus.Errorf("error finding all institution :: %v", err)
-		return nil, err
+		return nil, count, err
 	}
 	var responses []models.InstitutionResponse
 	for _, data := range *datas {
 		responses = append(responses, *data.InstitutionResponse())
 	}
-	return responses, nil
+	return responses, count, nil
 }
 
 func (s Service) DeleteInstitution(id uint) error {

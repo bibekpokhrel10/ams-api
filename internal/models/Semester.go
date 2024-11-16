@@ -3,6 +3,7 @@ package models
 import (
 	"errors"
 	"strings"
+	"time"
 
 	"github.com/jinzhu/gorm"
 )
@@ -18,6 +19,7 @@ type Semester struct {
 
 type SemesterResponse struct {
 	Id         uint             `json:"id"`
+	CreatedAt  time.Time        `json:"created_at"`
 	Name       string           `json:"name"`
 	Year       string           `json:"year"`
 	ProgramId  uint             `json:"program_id"`
@@ -30,6 +32,11 @@ type SemesterRequest struct {
 	Year       string `json:"year"`
 	ProgramId  uint   `json:"program_id"`
 	TimePeriod string `json:"time_period"`
+}
+
+type ListSemesterRequest struct {
+	ListRequest
+	ProgramId uint `form:"program_id"`
 }
 
 func NewSemester(req *SemesterRequest) (*Semester, error) {
@@ -49,6 +56,7 @@ func (s *Semester) SemesterResponse() *SemesterResponse {
 	}
 	return &SemesterResponse{
 		Id:         s.ID,
+		CreatedAt:  s.CreatedAt,
 		Name:       s.Name,
 		ProgramId:  s.ProgramId,
 		Year:       s.Year,

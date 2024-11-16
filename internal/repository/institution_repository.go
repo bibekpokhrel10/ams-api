@@ -8,7 +8,7 @@ import (
 
 type IInstitution interface {
 	CreateInstitution(data *models.Institution) (*models.Institution, error)
-	FindAllInstitution() (*[]models.Institution, error)
+	FindAllInstitution(req *models.ListInstitutionRequest) (*[]models.Institution, int, error)
 	FindInstitutionById(id uint) (*models.Institution, error)
 	FindInstitutionByName(name string) (*models.Institution, error)
 	UpdateInstitution(id uint, req *models.InstitutionRequest) (*models.Institution, error)
@@ -27,13 +27,22 @@ func (r *Repository) CreateInstitution(data *models.Institution) (*models.Instit
 	return data, nil
 }
 
-func (r *Repository) FindAllInstitution() (*[]models.Institution, error) {
+func (r *Repository) FindAllInstitution(req *models.ListInstitutionRequest) (*[]models.Institution, int, error) {
 	datas := &[]models.Institution{}
-	err := r.db.Model(&models.Institution{}).Order("id desc").Find(datas).Error
-	if err != nil {
-		return nil, err
+	count := 0
+	f := r.db.Model(&models.Institution{})
+	if req.Name != "" {
+		f = f.Where("name=?", req.Name)
 	}
-	return datas, err
+	f = f.Where("lower(name) LIKE lower(?)", "%"+req.Query+"%").Count(&count)
+	err := f.Order(req.SortColumn + " " + req.SortDirection).
+		Limit(int(req.Size)).
+		Offset(int(req.Size * (req.Page - 1))).
+		Find(datas).Error
+	if err != nil {
+		return nil, count, err
+	}
+	return datas, count, err
 }
 
 func (r *Repository) FindInstitutionById(id uint) (*models.Institution, error) {

@@ -9,7 +9,7 @@ import (
 type ISemester interface {
 	CreateSemester(req *models.SemesterRequest) (*models.SemesterResponse, error)
 	GetSemesterById(id uint) (*models.SemesterResponse, error)
-	ListSemester() ([]models.SemesterResponse, error)
+	ListSemester(req *models.ListSemesterRequest) ([]models.SemesterResponse, int, error)
 	DeleteSemester(id uint) error
 	UpdateSemester(id uint, req *models.SemesterRequest) (*models.SemesterResponse, error)
 }
@@ -45,16 +45,23 @@ func (s Service) GetSemesterById(id uint) (*models.SemesterResponse, error) {
 	return data.SemesterResponse(), nil
 }
 
-func (s Service) ListSemester() ([]models.SemesterResponse, error) {
-	datas, err := s.repo.FindAllSemester()
+func (s Service) ListSemester(req *models.ListSemesterRequest) ([]models.SemesterResponse, int, error) {
+	if req == nil {
+		return nil, 0, errors.New("semester request is nil while listing semester")
+	}
+	_, err := s.repo.FindProgramById(req.ProgramId)
 	if err != nil {
-		return nil, err
+		return nil, 0, errors.New("program not found")
+	}
+	datas, count, err := s.repo.FindAllSemester(req)
+	if err != nil {
+		return nil, count, err
 	}
 	var responses []models.SemesterResponse
 	for _, data := range *datas {
 		responses = append(responses, *data.SemesterResponse())
 	}
-	return responses, nil
+	return responses, count, nil
 }
 
 func (s Service) DeleteSemester(id uint) error {

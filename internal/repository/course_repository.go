@@ -6,7 +6,7 @@ import (
 
 type ICourse interface {
 	CreateCourse(data *models.Course) (*models.Course, error)
-	FindAllCourse() (*[]models.Course, error)
+	FindAllCourse(req *models.ListCourseRequest) ([]models.Course, int, error)
 	FindCourseById(id uint) (*models.Course, error)
 	UpdateCourse(id uint, req *models.CourseRequest) (*models.Course, error)
 	DeleteCourse(id uint) error
@@ -20,13 +20,18 @@ func (r *Repository) CreateCourse(data *models.Course) (*models.Course, error) {
 	return data, nil
 }
 
-func (r *Repository) FindAllCourse() (*[]models.Course, error) {
-	datas := &[]models.Course{}
-	err := r.db.Model(&models.Course{}).Order("id desc").Find(datas).Error
+func (r *Repository) FindAllCourse(req *models.ListCourseRequest) ([]models.Course, int, error) {
+	datas := []models.Course{}
+	count := 0
+	f := r.db.Model(&models.Course{}).Where("semester_id=?", req.SemesterId)
+	err := f.Order(req.SortColumn + " " + req.SortDirection).
+		Limit(int(req.Size)).
+		Offset(int(req.Size * (req.Page - 1))).
+		Find(&datas).Error
 	if err != nil {
-		return nil, err
+		return nil, count, err
 	}
-	return datas, err
+	return datas, count, err
 }
 
 func (r *Repository) FindCourseById(id uint) (*models.Course, error) {

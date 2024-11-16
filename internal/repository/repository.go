@@ -14,6 +14,7 @@ type IRepository interface {
 	IEnrollment
 	IProgram
 	IInstitution
+	IProgramEnrollment
 }
 
 // Repostory type struct
@@ -39,5 +40,6 @@ func AutoMigrate(db *gorm.DB) error {
 		models.Enrollment{},
 		models.Program{},
 		models.Institution{},
+		models.ProgramEnrollment{},
 	).Error
 }

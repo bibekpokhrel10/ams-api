@@ -25,12 +25,18 @@ func (server *Server) createSemester(ctx *gin.Context) {
 }
 
 func (server *Server) listSemester(ctx *gin.Context) {
-	datas, err := server.service.ListSemester()
+	var req *models.ListSemesterRequest
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, response.ERROR(err))
+		return
+	}
+	req.Prepare()
+	datas, count, err := server.service.ListSemester(req)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, response.ERROR(err))
 		return
 	}
-	ctx.JSON(http.StatusOK, response.Success(datas))
+	ctx.JSON(http.StatusOK, response.Success(datas, response.WithPagination(count, int(req.Page), int(req.Size))))
 }
 
 func (server *Server) getSemesterById(ctx *gin.Context) {

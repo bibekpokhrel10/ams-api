@@ -23,17 +23,22 @@ func (server *Server) setupRouter() {
 	server.setupCourseRoutes(apiRoutes.Group("/courses"))
 	server.setupClassRoutes(apiRoutes.Group("/classes"))
 	server.setupEnrollmentRoutes(apiRoutes.Group("/enrollments"))
+	server.setupProgramEnrollmentRoutes(apiRoutes.Group("/programs/enrollments"))
 	server.setupAttendanceRoutes(apiRoutes.Group("/attendances"))
 }
 
 func (server *Server) setupBasicRoutes(routes *gin.RouterGroup) {
 	routes.GET("", server.homePage)
+	routes.GET("/institutions", server.listInstitution)
 }
 
 func (server *Server) setupUserRoutes(routes *gin.RouterGroup) {
 	routes.GET("/profile", server.getUserFromToken)
 	routes.GET("", server.getAllUsers)
 	routes.PUT("/:id/activate", server.activateUser)
+	routes.PUT("/:id/change-password", server.updateUserPassword)
+	routes.PUT("/:id/change-type", server.updateUserType)
+	routes.DELETE("/:id", server.deleteUser)
 }
 
 func (server *Server) setupLoginRoutes(routes *gin.RouterGroup) {
@@ -43,7 +48,6 @@ func (server *Server) setupLoginRoutes(routes *gin.RouterGroup) {
 
 func (server *Server) setupInstitutionRoutes(routes *gin.RouterGroup) {
 	routes.POST("", server.createInstitution)
-	routes.GET("", server.listInstitution)
 	routes.GET("/:id", server.getInstitutionById)
 	routes.PUT("/:id", server.updateInstitution)
 	routes.DELETE("/:id", server.deleteInstitution)
@@ -87,6 +91,14 @@ func (server *Server) setupEnrollmentRoutes(routes *gin.RouterGroup) {
 	routes.GET("/:id", server.getEnrollmentById)
 	routes.PUT("/:id", server.updateEnrollment)
 	routes.DELETE("/:id", server.deleteEnrollment)
+}
+
+func (server *Server) setupProgramEnrollmentRoutes(routes *gin.RouterGroup) {
+	routes.POST("", server.createProgramEnrollment)
+	routes.GET("", server.listProgramEnrollment)
+	routes.GET("/:id", server.getProgramEnrollmentById)
+	routes.PUT("/:id", server.updateProgramEnrollment)
+	routes.DELETE("/:id", server.deleteProgramEnrollment)
 }
 
 func (server *Server) setupAttendanceRoutes(routes *gin.RouterGroup) {

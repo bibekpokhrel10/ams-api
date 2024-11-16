@@ -1,12 +1,14 @@
 package models
 
 import (
+	"errors"
 	"fmt"
 	"html"
 	"regexp"
 	"strings"
 	"unicode"
 
+	"github.com/ams-api/util/constants"
 	"github.com/ams-api/util/password"
 	"github.com/jinzhu/gorm"
 )
@@ -23,6 +25,7 @@ type User struct {
 	Password      string `json:"password"`
 	IsAdmin       bool   `json:"is_admin"`
 	IsActive      bool   `json:"is_active"`
+	InstitutionId uint   `json:"institution_id"`
 }
 
 type UserRequest struct {
@@ -36,6 +39,7 @@ type UserRequest struct {
 	Password      string `json:"password"`
 	IsAdmin       bool   `json:"is_admin"`
 	IsActive      bool   `json:"is_active"`
+	InstitutionId uint   `json:"institution_id"`
 }
 
 type UserResponse struct {
@@ -51,11 +55,14 @@ type UserResponse struct {
 	IsAdmin       bool   `json:"is_admin"`
 	IsActive      bool   `json:"is_active"`
 	Role          string `json:"role"`
+	InstitutionId uint   `json:"institution_id"`
 }
 
 type LoginRequest struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Email        string `json:"email"`
+	Password     string `json:"password"`
+	UserType     string `json:"user_type"` // super_admin, teacher, student, institution_admin, program_admin
+	InsitutionId uint   `json:"institution_id"`
 }
 
 type LoginResponse struct {
@@ -78,6 +85,7 @@ func NewUser(req *UserRequest) (*User, error) {
 		Password:      req.Password,
 		IsAdmin:       req.IsAdmin,
 		IsActive:      req.IsActive,
+		InstitutionId: req.InstitutionId,
 	}
 	// user.Prepare()
 	// err := user.Validate()
@@ -128,7 +136,7 @@ func (u *UserRequest) Validate() error {
 	if u.UserType == "" {
 		return ErrUserTypeRequired
 	} else {
-		if u.UserType != "teacher" && u.UserType != "student" {
+		if u.UserType != constants.TEACHER && u.UserType != constants.STUDENT {
 			return ErrInvalidUserType
 		}
 	}
@@ -139,12 +147,29 @@ func (u *UserRequest) Validate() error {
 	return nil
 }
 
+func (req *LoginRequest) Prepare() {
+	req.Email = strings.TrimSpace(req.Email)
+	req.Password = strings.TrimSpace(req.Password)
+	req.UserType = strings.TrimSpace(strings.ToLower(req.UserType))
+}
+
 func (r *LoginRequest) Validate() error {
 	if r.Email == "" {
 		return ErrUsernameRequired
 	}
 	if r.Password == "" {
 		return ErrPasswordRequired
+	}
+	if r.UserType == "" {
+		return errors.New("require user type")
+	}
+	if r.UserType != constants.SUPER_ADMIN && r.UserType != constants.TEACHER && r.UserType != constants.STUDENT && r.UserType != constants.INSTITUTION_ADMIN && r.UserType != constants.PROGRAM_ADMIN {
+		return errors.New("invalid user type")
+	}
+	if r.UserType != constants.SUPER_ADMIN {
+		if r.InsitutionId == 0 {
+			return errors.New("require insitution id")
+		}
 	}
 	return nil
 }
@@ -157,36 +182,63 @@ func checkEmail(email string) error {
 	return nil
 }
 
-// func (req *ChangePasswordRequest) Validate() (string, error) {
-// 	if req.OldPassword == "" {
-// 		return "", ErrRequiredOldPassword
-// 	}
-// 	if req.OldPassword == req.NewPassword {
-// 		return "", ErrSamePasswordAsOld
-// 	}
-// 	return validatePassword(req.NewPassword, req.ConfrimPassword)
-// }
+type UpdateUserPasswordRequest struct {
+	NewPassword     string `json:"new_password"`
+	ConfirmPassword string `json:"confirm_password"`
+}
 
-// func validatePassword(newPassword, confrimPassword string) (string, error) {
-// 	if newPassword == "" {
-// 		return "", ErrRequiredNewPassword
-// 	}
-// 	if confrimPassword == "" {
-// 		return "", ErrRequiredConfrimPassword
-// 	}
-// 	if newPassword != confrimPassword {
-// 		return "", ErrPasswordMismatch
-// 	}
-// 	err := PasswordValidate(newPassword)
-// 	if err != nil {
-// 		return "", err
-// 	}
-// 	hashPwd, err := password.HashPassword(newPassword)
-// 	if err != nil {
-// 		return "", ErrPasswordHashGenerate
-// 	}
-// 	return hashPwd, nil
-// }
+type ChangePasswordRequest struct {
+	OldPassword     string `json:"old_password"`
+	NewPassword     string `json:"new_password"`
+	ConfrimPassword string `json:"confrim_password"`
+}
+
+type ListUserRequest struct {
+	ListRequest
+	Email     string `form:"email"`
+	FirstName string `form:"first_name"`
+	Type      string `form:"type"`
+}
+
+type UpdateUserType struct {
+	UserType string `json:"user_type"`
+}
+
+func (req *UpdateUserPasswordRequest) Prepare() {
+	req.NewPassword = strings.TrimSpace(req.NewPassword)
+	req.ConfirmPassword = strings.TrimSpace(req.ConfirmPassword)
+}
+
+func (req *ChangePasswordRequest) Validate() (string, error) {
+	if req.OldPassword == "" {
+		return "", ErrRequiredOldPassword
+	}
+	if req.OldPassword == req.NewPassword {
+		return "", ErrSamePasswordAsOld
+	}
+	return validatePassword(req.NewPassword, req.ConfrimPassword)
+}
+
+func validatePassword(newPassword, confrimPassword string) (string, error) {
+	if newPassword == "" {
+		return "", ErrRequiredNewPassword
+	}
+	if confrimPassword == "" {
+		return "", ErrRequiredConfrimPassword
+	}
+	if newPassword != confrimPassword {
+		return "", ErrPasswordMismatch
+	}
+	err := PasswordValidate(newPassword)
+	if err != nil {
+		return "", err
+	}
+	hashPwd, err := password.HashPassword(newPassword)
+	if err != nil {
+		return "", ErrPasswordHashGenerate
+	}
+	return hashPwd, nil
+}
 
 func PasswordValidate(password string) error {
 	if len(password) < 6 {
@@ -249,5 +301,12 @@ func PasswordValidateMain(password string) error {
 		return ErrPasswordSpecialCharacter
 	}
 
+	return nil
+}
+
+func ValidateUserType(userType string) error {
+	if userType != "teacher" && userType != "student" && userType != "institution_admin" && userType != "program_admin" {
+		return ErrInvalidUserType
+	}
 	return nil
 }

@@ -11,6 +11,7 @@ type IService interface {
 	IEnrollment
 	IProgram
 	IInstitution
+	IProgramEnrollment
 }
 
 type Service struct {

@@ -6,7 +6,7 @@ import (
 
 type IProgram interface {
 	CreateProgram(data *models.Program) (*models.Program, error)
-	FindAllProgram() (*[]models.Program, error)
+	FindAllProgram(req *models.ListProgramRequest) (*[]models.Program, int, error)
 	FindProgramById(id uint) (*models.Program, error)
 	UpdateProgram(id uint, req *models.ProgramRequest) (*models.Program, error)
 	DeleteProgram(id uint) error
@@ -20,13 +20,19 @@ func (r *Repository) CreateProgram(data *models.Program) (*models.Program, error
 	return data, nil
 }
 
-func (r *Repository) FindAllProgram() (*[]models.Program, error) {
+func (r *Repository) FindAllProgram(req *models.ListProgramRequest) (*[]models.Program, int, error) {
 	datas := &[]models.Program{}
-	err := r.db.Model(&models.Program{}).Order("id desc").Find(datas).Error
+	count := 0
+	f := r.db.Model(models.Program{}).Where("institution_id=?", req.InstitutionId)
+	f = f.Where("lower(name) LIKE lower(?)", "%"+req.Query+"%").Count(&count)
+	err := f.Order(req.SortColumn + " " + req.SortDirection).
+		Limit(int(req.Size)).
+		Offset(int(req.Size * (req.Page - 1))).
+		Find(datas).Error
 	if err != nil {
-		return nil, err
+		return nil, count, err
 	}
-	return datas, err
+	return datas, count, err
 }
 
 func (r *Repository) FindProgramById(id uint) (*models.Program, error) {

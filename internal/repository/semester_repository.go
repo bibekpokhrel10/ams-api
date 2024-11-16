@@ -6,7 +6,7 @@ import (
 
 type ISemester interface {
 	CreateSemester(data *models.Semester) (*models.Semester, error)
-	FindAllSemester() (*[]models.Semester, error)
+	FindAllSemester(req *models.ListSemesterRequest) (*[]models.Semester, int, error)
 	FindSemesterById(id uint) (*models.Semester, error)
 	UpdateSemester(id uint, req *models.SemesterRequest) (*models.Semester, error)
 	DeleteSemester(id uint) error
@@ -20,13 +20,18 @@ func (r *Repository) CreateSemester(data *models.Semester) (*models.Semester, er
 	return data, nil
 }
 
-func (r *Repository) FindAllSemester() (*[]models.Semester, error) {
+func (r *Repository) FindAllSemester(req *models.ListSemesterRequest) (*[]models.Semester, int, error) {
 	datas := &[]models.Semester{}
-	err := r.db.Model(&models.Semester{}).Order("id desc").Find(datas).Error
+	count := 0
+	f := r.db.Model(&models.Semester{}).Where("program_id = ?", req.ProgramId)
+	err := f.Order(req.SortColumn + " " + req.SortDirection).
+		Limit(int(req.Size)).
+		Offset(int(req.Size * (req.Page - 1))).
+		Find(datas).Error
 	if err != nil {
-		return nil, err
+		return nil, count, err
 	}
-	return datas, err
+	return datas, count, err
 }
 
 func (r *Repository) FindSemesterById(id uint) (*models.Semester, error) {

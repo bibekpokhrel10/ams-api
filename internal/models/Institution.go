@@ -3,6 +3,7 @@ package models
 import (
 	"errors"
 	"strings"
+	"time"
 
 	"github.com/jinzhu/gorm"
 )
@@ -13,18 +14,25 @@ type Institution struct {
 }
 
 type InstitutionResponse struct {
-	Id   uint   `json:"id"`
-	Name string `json:"name"`
+	Id        uint      `json:"id"`
+	CreatedAt time.Time `json:"created_at"`
+	Name      string    `json:"name"`
 }
 
 type InstitutionRequest struct {
 	Name string `json:"name"`
 }
 
+type ListInstitutionRequest struct {
+	ListRequest
+	Name string `form:"name"`
+}
+
 func (p *Institution) InstitutionResponse() *InstitutionResponse {
 	return &InstitutionResponse{
-		Id:   p.ID,
-		Name: p.Name,
+		Id:        p.ID,
+		CreatedAt: p.CreatedAt,
+		Name:      p.Name,
 	}
 }
 

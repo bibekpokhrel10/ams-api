@@ -9,7 +9,7 @@ import (
 type ICourse interface {
 	CreateCourse(req *models.CourseRequest) (*models.CourseResponse, error)
 	GetCourseById(id uint) (*models.CourseResponse, error)
-	ListCourse() ([]models.CourseResponse, error)
+	ListCourse(req *models.ListCourseRequest) ([]models.CourseResponse, int, error)
 	DeleteCourse(id uint) error
 	UpdateCourse(id uint, req *models.CourseRequest) (*models.CourseResponse, error)
 }
@@ -45,16 +45,16 @@ func (s Service) GetCourseById(id uint) (*models.CourseResponse, error) {
 	return data.CourseResponse(), nil
 }
 
-func (s Service) ListCourse() ([]models.CourseResponse, error) {
-	datas, err := s.repo.FindAllCourse()
+func (s Service) ListCourse(req *models.ListCourseRequest) ([]models.CourseResponse, int, error) {
+	datas, count, err := s.repo.FindAllCourse(req)
 	if err != nil {
-		return nil, err
+		return nil, count, err
 	}
 	var responses []models.CourseResponse
-	for _, data := range *datas {
+	for _, data := range datas {
 		responses = append(responses, *data.CourseResponse())
 	}
-	return responses, nil
+	return responses, count, nil
 }
 
 func (s Service) DeleteCourse(id uint) error {

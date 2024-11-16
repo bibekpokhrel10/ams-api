@@ -24,12 +24,18 @@ func (server *Server) createProgram(ctx *gin.Context) {
 }
 
 func (server *Server) listProgram(ctx *gin.Context) {
-	datas, err := server.service.ListProgram()
+	var req *models.ListProgramRequest
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, response.ERROR(err))
+		return
+	}
+	req.Prepare()
+	datas, count, err := server.service.ListProgram(req)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, response.ERROR(err))
 		return
 	}
-	ctx.JSON(http.StatusOK, response.Success(datas))
+	ctx.JSON(http.StatusOK, response.Success(datas, response.WithPagination(count, int(req.Page), int(req.Size))))
 }
 
 func (server *Server) getProgramById(ctx *gin.Context) {
