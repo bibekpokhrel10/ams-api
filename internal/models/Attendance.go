@@ -1,7 +1,6 @@
 package models
 
 import (
-	"strings"
 	"time"
 
 	"github.com/jinzhu/gorm"
@@ -15,7 +14,20 @@ type Attendance struct {
 	StudentId uint      `json:"student_id"`
 	Student   *User     `gorm:"foreignKey:StudentId" json:"student"`
 	IsPresent bool      `json:"is_present"` // e.g., present, absent, late
+	Status    string    `json:"status"`     // e.g., "present", "absent", "late"
 	Remarks   string    `json:"remarks"`
+}
+
+type AttendanceRecordRequest struct {
+	ClassId    uint                `json:"class_id"`
+	Date       time.Time           `json:"date"`
+	Attendance []StudentAttendance `json:"attendance"`
+}
+
+// StudentAttendance represents the attendance status for a single student
+type StudentAttendance struct {
+	StudentId uint   `json:"student_id"`
+	Status    string `json:"status"` // e.g., "present", "absent", "late"
 }
 
 type AttendanceResponse struct {
@@ -26,6 +38,7 @@ type AttendanceResponse struct {
 	StudentID uint           `json:"student_id"`
 	Student   *UserResponse  `json:"user_response"`
 	IsPresent bool           `json:"is_present"`
+	Status    string         `json:"status"`
 	Remarks   string         `json:"remarks"`
 }
 
@@ -34,6 +47,7 @@ type AttendanceRequest struct {
 	ClassId   uint      `json:"class_id"`
 	StudentId uint      `json:"student_id"`
 	IsPresent bool      `json:"is_present"`
+	Status    string    `json:"status"`
 	Remarks   string    `json:"remarks"`
 }
 
@@ -54,6 +68,7 @@ func (a *Attendance) AttendanceResponse() *AttendanceResponse {
 		StudentID: a.StudentId,
 		Student:   studentResp,
 		IsPresent: a.IsPresent,
+		Status:    a.Status,
 		Remarks:   a.Remarks,
 	}
 }
@@ -64,15 +79,16 @@ func NewAttendance(req *AttendanceRequest) (*Attendance, error) {
 		ClassId:   req.ClassId,
 		StudentId: req.StudentId,
 		IsPresent: req.IsPresent,
+		Status:    req.Status,
 		Remarks:   req.Remarks,
 	}
 	return attendance, nil
 }
 
-func (req *AttendanceRequest) Validate() error {
+func (req *AttendanceRecordRequest) Validate() error {
 	return nil
 }
 
-func (req *AttendanceRequest) Prepare() {
-	req.Remarks = strings.TrimSpace(req.Remarks)
+func (req *AttendanceRecordRequest) Prepare() {
+
 }

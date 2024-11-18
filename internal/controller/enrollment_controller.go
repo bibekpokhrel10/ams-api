@@ -11,26 +11,32 @@ import (
 )
 
 func (server *Server) createEnrollment(ctx *gin.Context) {
-	var req *models.EnrollmentRequest
+	var req *models.EnrollmentRequestPayload
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, response.ERROR(err))
 		return
 	}
-	data, err := server.service.CreateEnrollment(req)
+	err := server.service.CreateEnrollment(req)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, response.ERROR(err))
 		return
 	}
-	ctx.JSON(http.StatusOK, response.Success(data))
+	ctx.JSON(http.StatusOK, response.Success("successfully enrolled students in class"))
 }
 
 func (server *Server) listEnrollment(ctx *gin.Context) {
-	datas, err := server.service.ListEnrollment()
+	var req *models.ListEnrollmentRequest
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, response.ERROR(err))
+		return
+	}
+	req.Prepare()
+	datas, count, err := server.service.ListEnrollment(req)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, response.ERROR(err))
 		return
 	}
-	ctx.JSON(http.StatusOK, response.Success(datas))
+	ctx.JSON(http.StatusOK, response.Success(datas, response.WithPagination(count, int(req.Page), int(req.Size))))
 }
 
 func (server *Server) getEnrollmentById(ctx *gin.Context) {

@@ -113,6 +113,7 @@ func (u *User) UserResponse() *UserResponse {
 		Password:      u.Password,
 		IsAdmin:       u.IsAdmin,
 		IsActive:      u.IsActive,
+		InstitutionId: u.InstitutionId,
 	}
 }
 

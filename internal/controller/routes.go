@@ -22,7 +22,7 @@ func (server *Server) setupRouter() {
 	server.setupSemesterRoutes(apiRoutes.Group("/semesters"))
 	server.setupCourseRoutes(apiRoutes.Group("/courses"))
 	server.setupClassRoutes(apiRoutes.Group("/classes"))
-	server.setupEnrollmentRoutes(apiRoutes.Group("/enrollments"))
+	server.setupEnrollmentRoutes(apiRoutes.Group("/classes/enrollments"))
 	server.setupProgramEnrollmentRoutes(apiRoutes.Group("/programs/enrollments"))
 	server.setupAttendanceRoutes(apiRoutes.Group("/attendances"))
 }

@@ -11,17 +11,17 @@ import (
 )
 
 func (server *Server) createAttendance(ctx *gin.Context) {
-	var req *models.AttendanceRequest
+	var req *models.AttendanceRecordRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, response.ERROR(err))
 		return
 	}
-	data, err := server.service.CreateAttendance(req)
+	err := server.service.CreateAttendance(req)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, response.ERROR(err))
 		return
 	}
-	ctx.JSON(http.StatusOK, response.Success(data))
+	ctx.JSON(http.StatusOK, response.Success("successfully created attendance record"))
 }
 
 func (server *Server) listAttendance(ctx *gin.Context) {
