@@ -51,6 +51,20 @@ type AttendanceRequest struct {
 	Remarks   string    `json:"remarks"`
 }
 
+type ListAttendanceRequest struct {
+	ListRequest
+	Date      string `form:"date"`
+	ClassId   uint   `form:"class_id"`
+	StudentId uint   `form:"student_id"`
+}
+
+type AttendanceStats struct {
+	TotalPresent  int `json:"total_present"`
+	TotalAbsent   int `json:"total_absent"`
+	TotalLate     int `json:"total_late"`
+	TotalStudents int `json:"total_students"`
+}
+
 func (a *Attendance) AttendanceResponse() *AttendanceResponse {
 	studentResp := &UserResponse{}
 	if a.Student != nil {

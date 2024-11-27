@@ -28,8 +28,10 @@ type ProgramEnrollmentRequestPayload struct {
 
 type ListProgramEnrollmentRequest struct {
 	ListRequest
-	ProgramId uint `form:"program_id"`
-	StudentId uint `form:"student_id"`
+	ProgramId         uint  `form:"program_id"`
+	StudentId         uint  `form:"student_id"`
+	IsClassEnrollment *bool `form:"is_class_enrollment"`
+	ClassId           uint  `form:"class_id"`
 }
 
 func NewProgramEnrollment(req *ProgramEnrollmentRequest) (*ProgramEnrollment, error) {

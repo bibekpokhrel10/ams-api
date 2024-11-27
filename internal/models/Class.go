@@ -14,7 +14,7 @@ type Class struct {
 	Year         int     `json:"year"`
 	Schedule     string  `json:"schedule"`
 	InstructorID uint    `json:"instructor_id"`
-	Instructor   *User   `gorm:"foreignKey:InstructorID" json:"instructor"`
+	User         *User   `gorm:"foreignKey:InstructorID" json:"user"`
 }
 
 type ClassResponse struct {
@@ -24,7 +24,7 @@ type ClassResponse struct {
 	Year         int             `json:"year"`
 	Schedule     string          `json:"schedule"`
 	InstructorID uint            `json:"instructor_id"`
-	Instructor   *UserResponse   `json:"instructor"`
+	User         *UserResponse   `json:"user"`
 }
 
 type ClassRequest struct {
@@ -40,8 +40,8 @@ func (c *Class) ClassResponse() *ClassResponse {
 		courseResp = c.Course.CourseResponse()
 	}
 	instructorResp := &UserResponse{}
-	if c.Instructor != nil {
-		instructorResp = c.Instructor.UserResponse()
+	if c.User != nil {
+		instructorResp = c.User.UserResponse()
 	}
 	return &ClassResponse{
 		Id:           c.ID,
@@ -50,7 +50,7 @@ func (c *Class) ClassResponse() *ClassResponse {
 		Year:         c.Year,
 		Schedule:     c.Schedule,
 		InstructorID: c.InstructorID,
-		Instructor:   instructorResp,
+		User:         instructorResp,
 	}
 }
 

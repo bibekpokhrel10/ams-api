@@ -4,14 +4,16 @@ import (
 	"errors"
 
 	"github.com/ams-api/internal/models"
+	"github.com/sirupsen/logrus"
 )
 
 type IAttendance interface {
 	CreateAttendance(req *models.AttendanceRecordRequest) error
 	GetAttendanceById(id uint) (*models.AttendanceResponse, error)
-	ListAttendance() ([]models.AttendanceResponse, error)
+	ListAttendance(req *models.ListAttendanceRequest) ([]models.AttendanceResponse, int, error)
 	DeleteAttendance(id uint) error
 	UpdateAttendance(id uint, req *models.AttendanceRequest) (*models.AttendanceResponse, error)
+	GetAttendanceStatsByDate(classId uint, date string) (*models.AttendanceStats, error)
 }
 
 func (s Service) CreateAttendance(req *models.AttendanceRecordRequest) error {
@@ -32,7 +34,7 @@ func (s Service) CreateAttendance(req *models.AttendanceRecordRequest) error {
 			return errors.New("student not found")
 		}
 		if user.UserType != "student" {
-			return errors.New("student not found")
+			return errors.New("user is not student")
 		}
 	}
 	for _, attendance := range req.Attendance {
@@ -42,16 +44,26 @@ func (s Service) CreateAttendance(req *models.AttendanceRecordRequest) error {
 			StudentId: attendance.StudentId,
 			Status:    attendance.Status,
 		}
+
 		if attendance.Status == "present" || attendance.Status == "absent" {
 			attendanceRequest.IsPresent = true
 		}
-		newReq, err := models.NewAttendance(attendanceRequest)
+		data, err := s.repo.FindAttendancesByClassIdAndDateAndStudentId(req.ClassId, req.Date, attendance.StudentId)
 		if err != nil {
-			return err
-		}
-		_, err = s.repo.CreateAttendance(newReq)
-		if err != nil {
-			return err
+			logrus.Error("error finding attendance by class id and date and student id :: ", err)
+			newReq, err := models.NewAttendance(attendanceRequest)
+			if err != nil {
+				return err
+			}
+			_, err = s.repo.CreateAttendance(newReq)
+			if err != nil {
+				return err
+			}
+		} else {
+			_, err = s.repo.UpdateAttendance(data.ID, attendanceRequest)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return nil
@@ -65,16 +77,16 @@ func (s Service) GetAttendanceById(id uint) (*models.AttendanceResponse, error) 
 	return data.AttendanceResponse(), nil
 }
 
-func (s Service) ListAttendance() ([]models.AttendanceResponse, error) {
-	datas, err := s.repo.FindAllAttendance()
+func (s Service) ListAttendance(req *models.ListAttendanceRequest) ([]models.AttendanceResponse, int, error) {
+	datas, count, err := s.repo.FindAllAttendance(req)
 	if err != nil {
-		return nil, err
+		return nil, count, err
 	}
 	var responses []models.AttendanceResponse
 	for _, data := range *datas {
 		responses = append(responses, *data.AttendanceResponse())
 	}
-	return responses, nil
+	return responses, count, nil
 }
 
 func (s Service) DeleteAttendance(id uint) error {
@@ -98,7 +110,7 @@ func (s Service) UpdateAttendance(id uint, req *models.AttendanceRequest) (*mode
 		return nil, errors.New("student not found")
 	}
 	if user.UserType != "student" {
-		return nil, errors.New("student not found")
+		return nil, errors.New("user is not student")
 	}
 	datum, err := s.repo.FindAttendanceById(id)
 	if err != nil {
@@ -109,4 +121,29 @@ func (s Service) UpdateAttendance(id uint, req *models.AttendanceRequest) (*mode
 		return nil, err
 	}
 	return data.AttendanceResponse(), nil
+}
+
+func (s Service) GetAttendanceStatsByDate(classId uint, date string) (*models.AttendanceStats, error) {
+	datas, err := s.repo.FindAllAttendancesByClassIdAndDate(classId, date)
+	if err != nil {
+		return nil, err
+	}
+	attendanceStats := &models.AttendanceStats{
+		TotalPresent:  0,
+		TotalAbsent:   0,
+		TotalLate:     0,
+		TotalStudents: 0,
+	}
+	for _, data := range *datas {
+		if data.Status == "present" {
+			attendanceStats.TotalPresent++
+		} else if data.Status == "absent" {
+			attendanceStats.TotalAbsent++
+		} else if data.Status == "late" {
+			attendanceStats.TotalLate++
+		}
+		attendanceStats.TotalStudents++
+	}
+	responses := attendanceStats
+	return responses, nil
 }

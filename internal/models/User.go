@@ -15,17 +15,18 @@ import (
 
 type User struct {
 	gorm.Model
-	UserType      string `json:"user_type"` // teacher/student
-	FirstName     string `json:"first_name"`
-	LastName      string `json:"last_name"`
-	Email         string `json:"email"`
-	ContactNumber string `json:"contact_number"`
-	DateOfBirth   string `json:"date_of_birth"`
-	Gender        string `json:"gender"` // male, female, others
-	Password      string `json:"password"`
-	IsAdmin       bool   `json:"is_admin"`
-	IsActive      bool   `json:"is_active"`
-	InstitutionId uint   `json:"institution_id"`
+	UserType      string       `json:"user_type"` // teacher/student
+	FirstName     string       `json:"first_name"`
+	LastName      string       `json:"last_name"`
+	Email         string       `json:"email"`
+	ContactNumber string       `json:"contact_number"`
+	DateOfBirth   string       `json:"date_of_birth"`
+	Gender        string       `json:"gender"` // male, female, others
+	Password      string       `json:"password"`
+	IsAdmin       bool         `json:"is_admin"`
+	IsActive      bool         `json:"is_active"`
+	InstitutionId uint         `json:"institution_id"`
+	Institution   *Institution `json:"institution" gorm:"foreignKey:InstitutionId"`
 }
 
 type UserRequest struct {
@@ -43,19 +44,20 @@ type UserRequest struct {
 }
 
 type UserResponse struct {
-	Id            uint   `json:"id"`
-	UserType      string `json:"user_type"` // teacher/student
-	FirstName     string `json:"first_name"`
-	LastName      string `json:"last_name"`
-	Email         string `json:"email"`
-	ContactNumber string `json:"contact_number"`
-	DateOfBirth   string `json:"date_of_birth"`
-	Gender        string `json:"gender"`
-	Password      string `json:"password"`
-	IsAdmin       bool   `json:"is_admin"`
-	IsActive      bool   `json:"is_active"`
-	Role          string `json:"role"`
-	InstitutionId uint   `json:"institution_id"`
+	Id            uint                 `json:"id"`
+	UserType      string               `json:"user_type"` // teacher/student
+	FirstName     string               `json:"first_name"`
+	LastName      string               `json:"last_name"`
+	Email         string               `json:"email"`
+	ContactNumber string               `json:"contact_number"`
+	DateOfBirth   string               `json:"date_of_birth"`
+	Gender        string               `json:"gender"`
+	Password      string               `json:"password"`
+	IsAdmin       bool                 `json:"is_admin"`
+	IsActive      bool                 `json:"is_active"`
+	Role          string               `json:"role"`
+	InstitutionId uint                 `json:"institution_id"`
+	Institution   *InstitutionResponse `json:"institution"`
 }
 
 type LoginRequest struct {
@@ -101,6 +103,10 @@ func NewUser(req *UserRequest) (*User, error) {
 }
 
 func (u *User) UserResponse() *UserResponse {
+	institution := InstitutionResponse{}
+	if u.Institution != nil {
+		institution = *u.Institution.InstitutionResponse()
+	}
 	return &UserResponse{
 		Id:            u.ID,
 		UserType:      u.UserType,
@@ -114,6 +120,7 @@ func (u *User) UserResponse() *UserResponse {
 		IsAdmin:       u.IsAdmin,
 		IsActive:      u.IsActive,
 		InstitutionId: u.InstitutionId,
+		Institution:   &institution,
 	}
 }
 
@@ -196,9 +203,12 @@ type ChangePasswordRequest struct {
 
 type ListUserRequest struct {
 	ListRequest
-	Email     string `form:"email"`
-	FirstName string `form:"first_name"`
-	Type      string `form:"type"`
+	Email               string `form:"email"`
+	FirstName           string `form:"first_name"`
+	UserType            string `form:"user_type"`
+	InstitutionId       uint   `form:"institution_id"`
+	IsProgramEnrollment *bool  `form:"is_program_enrollment"`
+	ProgramId           uint   `form:"program_id"`
 }
 
 type UpdateUserType struct {

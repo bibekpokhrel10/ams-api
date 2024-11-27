@@ -10,6 +10,7 @@ type IProgramEnrollment interface {
 	FindProgramEnrollmentById(id uint) (*models.ProgramEnrollment, error)
 	UpdateProgramEnrollment(id uint, req *models.ProgramEnrollmentRequest) (*models.ProgramEnrollment, error)
 	FindProgramEnrollmentByProgramIdAndStudentId(programId, studentId uint) (*models.ProgramEnrollment, error)
+	FindProgramEnrollmentByProgramId(programId uint) ([]models.ProgramEnrollment, error)
 	DeleteProgramEnrollment(id uint) error
 }
 
@@ -62,6 +63,15 @@ func (r *Repository) FindAllProgramEnrollment(req *models.ListProgramEnrollmentR
 func (r *Repository) FindProgramEnrollmentById(id uint) (*models.ProgramEnrollment, error) {
 	data := &models.ProgramEnrollment{}
 	err := r.db.Model(models.ProgramEnrollment{}).Where("id = ?", id).Preload("User").Take(data).Error
+	if err != nil {
+		return nil, err
+	}
+	return data, err
+}
+
+func (r *Repository) FindProgramEnrollmentByProgramId(programId uint) ([]models.ProgramEnrollment, error) {
+	data := []models.ProgramEnrollment{}
+	err := r.db.Model(models.ProgramEnrollment{}).Where("program_id = ?", programId).Preload("User").Find(&data).Error
 	if err != nil {
 		return nil, err
 	}

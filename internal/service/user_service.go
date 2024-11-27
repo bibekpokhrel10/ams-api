@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/ams-api/internal/models"
+	"github.com/ams-api/util"
 	"github.com/ams-api/util/constants"
 	"github.com/ams-api/util/password"
 	"github.com/sirupsen/logrus"
@@ -110,11 +111,43 @@ func (s Service) ListAllUsers(req *models.ListUserRequest) ([]models.UserRespons
 		logrus.Errorf("error finding all users :: %v", err)
 		return nil, count, err
 	}
+
+	filteredData := []models.User{}
+	isFiltered := false
+
+	// Check for program enrollment filter
+	if req.IsProgramEnrollment != nil && *req.IsProgramEnrollment {
+		programEnrollments, err := s.repo.FindProgramEnrollmentByProgramId(req.ProgramId)
+		if err == nil && programEnrollments != nil {
+			// Create a map of user IDs from program enrollments for quick lookup
+			programEnrolledUsers := []uint{}
+			for _, programEnrollment := range programEnrollments {
+				programEnrolledUsers = append(programEnrolledUsers, programEnrollment.StudentId)
+			}
+
+			// Filter out users in `datas` that are also in `programEnrollments`
+			for _, data := range datas {
+				isFiltered = true
+				if !util.ContainsUint(programEnrolledUsers, data.ID) {
+					filteredData = append(filteredData, data)
+				}
+			}
+		}
+	}
+
+	// If no filtering occurred, use the original data
+	if !isFiltered {
+		filteredData = datas
+	}
+
+	// Prepare the response
 	var responses []models.UserResponse
-	for _, data := range datas {
+	for _, data := range filteredData {
 		responses = append(responses, *data.UserResponse())
 	}
+
 	return responses, count, nil
+
 }
 
 func (s Service) ActivateDeactivateUser(id uint, isActive bool) (*models.UserResponse, error) {

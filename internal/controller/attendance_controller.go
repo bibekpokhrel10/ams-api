@@ -8,6 +8,7 @@ import (
 	"github.com/ams-api/internal/models"
 	"github.com/ams-api/internal/response"
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 )
 
 func (server *Server) createAttendance(ctx *gin.Context) {
@@ -25,12 +26,45 @@ func (server *Server) createAttendance(ctx *gin.Context) {
 }
 
 func (server *Server) listAttendance(ctx *gin.Context) {
-	datas, err := server.service.ListAttendance()
+	var req *models.ListAttendanceRequest
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, response.ERROR(err))
+		return
+	}
+	req.Prepare()
+	datas, count, err := server.service.ListAttendance(req)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, response.ERROR(err))
 		return
 	}
-	ctx.JSON(http.StatusOK, response.Success(datas))
+	ctx.JSON(http.StatusOK, response.Success(datas, response.WithPagination(count, int(req.Page), int(req.Size))))
+}
+
+func (server *Server) listAttendanceStats(ctx *gin.Context) {
+	date := ctx.Query("date")
+	if date == "" {
+		logrus.Error("error while getting attendance stats :: date is required")
+		ctx.JSON(http.StatusBadRequest, response.ERROR(errors.New("date is required")))
+		return
+	}
+	classIdReq := ctx.Query("class_id")
+	if classIdReq == "" {
+		logrus.Error("error while getting attendance stats :: class_id is required")
+		ctx.JSON(http.StatusBadRequest, response.ERROR(errors.New("class_id is required")))
+		return
+	}
+	classId, err := strconv.Atoi(classIdReq)
+	if err != nil {
+		logrus.Error("error while getting class id :: ", err)
+		ctx.JSON(http.StatusBadRequest, response.ERROR(err))
+		return
+	}
+	data, err := server.service.GetAttendanceStatsByDate(uint(classId), date)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, response.ERROR(err))
+		return
+	}
+	ctx.JSON(http.StatusOK, response.Success(data))
 }
 
 func (server *Server) getAttendanceById(ctx *gin.Context) {

@@ -12,6 +12,9 @@ type IService interface {
 	IProgram
 	IInstitution
 	IProgramEnrollment
+	IDashboard
+	IProgramAdmin
+	IInstitutionAdmin
 }
 
 type Service struct {

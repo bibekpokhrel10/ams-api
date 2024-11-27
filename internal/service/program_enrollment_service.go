@@ -5,7 +5,9 @@ import (
 	"fmt"
 
 	"github.com/ams-api/internal/models"
+	"github.com/ams-api/util"
 	"github.com/ams-api/util/constants"
+	"github.com/sirupsen/logrus"
 )
 
 type IProgramEnrollment interface {
@@ -66,8 +68,45 @@ func (s Service) ListProgramEnrollment(req *models.ListProgramEnrollmentRequest)
 	if err != nil {
 		return nil, count, err
 	}
+	logrus.Info("datas :: ", datas)
+
+	filteredData := []models.ProgramEnrollment{}
+	isFiltered := false
+
+	// Check for program enrollment filter
+	if req.IsClassEnrollment != nil && *req.IsClassEnrollment {
+		classEnrollments, err := s.repo.FindEnrollmentByClassId(req.ClassId)
+		logrus.Info("classEnrollments :: ", classEnrollments)
+		if err == nil && classEnrollments != nil {
+			// Create a map of user IDs from program enrollments for quick lookup
+			classEnrolledUsers := []uint{}
+			for _, classEnrollment := range classEnrollments {
+				logrus.Info("classEnrollment :: ", classEnrollment.User.Email)
+				logrus.Info("student  id :: ", classEnrollment.StudentId)
+				logrus.Info("class user id :: ", classEnrollment.User.ID)
+				classEnrolledUsers = append(classEnrolledUsers, classEnrollment.StudentId)
+			}
+
+			// Filter out users in `datas` that are also in `programEnrollments`
+			for _, data := range datas {
+				isFiltered = true
+				logrus.Info("class enrolled user :: ", classEnrolledUsers)
+				if !util.ContainsUint(classEnrolledUsers, data.StudentId) {
+					logrus.Info("data filter :: ", data.User.Email)
+					logrus.Info("data id :: ", data.ID)
+					filteredData = append(filteredData, data)
+				}
+			}
+		}
+	}
+
+	// If no filtering occurred, use the original data
+	if !isFiltered {
+		filteredData = datas
+	}
+
 	var responses []models.ProgramEnrollmentResponse
-	for _, data := range datas {
+	for _, data := range filteredData {
 		responses = append(responses, *data.ProgramEnrollmentResponse())
 	}
 	return responses, count, nil

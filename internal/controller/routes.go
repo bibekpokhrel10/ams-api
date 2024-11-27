@@ -19,17 +19,40 @@ func (server *Server) setupRouter() {
 	server.setupUserRoutes(apiRoutes.Group("/users"))
 	server.setupInstitutionRoutes(apiRoutes.Group("/institutions"))
 	server.setupProgramRoutes(apiRoutes.Group("/programs"))
+	server.setupProgramAdminRoutes(apiRoutes.Group("/program-admins"))
+	server.setupInstitutionAdminRoutes(apiRoutes.Group("/institution-admins"))
 	server.setupSemesterRoutes(apiRoutes.Group("/semesters"))
 	server.setupCourseRoutes(apiRoutes.Group("/courses"))
 	server.setupClassRoutes(apiRoutes.Group("/classes"))
 	server.setupEnrollmentRoutes(apiRoutes.Group("/classes/enrollments"))
 	server.setupProgramEnrollmentRoutes(apiRoutes.Group("/programs/enrollments"))
 	server.setupAttendanceRoutes(apiRoutes.Group("/attendances"))
+	server.setupDashboardRoutes(apiRoutes.Group("/dashboard"))
 }
 
 func (server *Server) setupBasicRoutes(routes *gin.RouterGroup) {
 	routes.GET("", server.homePage)
 	routes.GET("/institutions", server.listInstitution)
+}
+
+func (server *Server) setupDashboardRoutes(routes *gin.RouterGroup) {
+	routes.GET("", server.getDashboard)
+}
+
+func (server *Server) setupProgramAdminRoutes(routes *gin.RouterGroup) {
+	routes.POST("", server.createProgramAdmin)
+	routes.GET("", server.listProgramAdmin)
+	routes.GET("/:id", server.getProgramAdminById)
+	routes.PUT("/:id", server.updateProgramAdmin)
+	routes.DELETE("/:id", server.deleteProgramAdmin)
+}
+
+func (server *Server) setupInstitutionAdminRoutes(routes *gin.RouterGroup) {
+	routes.POST("", server.createInstitutionAdmin)
+	routes.GET("", server.listInstitutionAdmin)
+	routes.GET("/:id", server.getInstitutionAdminById)
+	routes.PUT("/:id", server.updateInstitutionAdmin)
+	routes.DELETE("/:id", server.deleteInstitutionAdmin)
 }
 
 func (server *Server) setupUserRoutes(routes *gin.RouterGroup) {
@@ -104,6 +127,7 @@ func (server *Server) setupProgramEnrollmentRoutes(routes *gin.RouterGroup) {
 func (server *Server) setupAttendanceRoutes(routes *gin.RouterGroup) {
 	routes.POST("", server.createAttendance)
 	routes.GET("", server.listAttendance)
+	routes.GET("/stats", server.listAttendanceStats)
 	routes.GET("/:id", server.getAttendanceById)
 	routes.PUT("/:id", server.updateAttendance)
 	routes.DELETE("/:id", server.deleteAttendance)

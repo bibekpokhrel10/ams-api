@@ -11,6 +11,7 @@ type IEnrollment interface {
 	UpdateEnrollment(id uint, req *models.EnrollmentRequest) (*models.Enrollment, error)
 	DeleteEnrollment(id uint) error
 	FindProgramEnrollmentByClassIdAndStudentId(classId, studentId uint) (*models.Enrollment, error)
+	FindEnrollmentByClassId(classId uint) ([]models.Enrollment, error)
 }
 
 func (r *Repository) CreateEnrollment(data *models.Enrollment) (*models.Enrollment, error) {
@@ -62,6 +63,15 @@ func (r *Repository) FindAllEnrollment(req *models.ListEnrollmentRequest) ([]mod
 func (r *Repository) FindEnrollmentById(id uint) (*models.Enrollment, error) {
 	data := &models.Enrollment{}
 	err := r.db.Model(models.Enrollment{}).Where("id = ?", id).Preload("User").Take(data).Error
+	if err != nil {
+		return nil, err
+	}
+	return data, err
+}
+
+func (r *Repository) FindEnrollmentByClassId(classId uint) ([]models.Enrollment, error) {
+	data := []models.Enrollment{}
+	err := r.db.Model(models.Enrollment{}).Where("class_id = ?", classId).Preload("User").Find(&data).Error
 	if err != nil {
 		return nil, err
 	}

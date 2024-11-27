@@ -19,3 +19,12 @@ func ConvertType(data, dest interface{}) error {
 	}
 	return nil
 }
+
+func ContainsUint(s []uint, e uint) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
+}

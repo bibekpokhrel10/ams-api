@@ -22,7 +22,7 @@ func (r *Repository) CreateClass(data *models.Class) (*models.Class, error) {
 
 func (r *Repository) FindAllClass() (*[]models.Class, error) {
 	datas := &[]models.Class{}
-	err := r.db.Model(&models.Class{}).Order("id desc").Preload("Course").Preload("Course.Semester").Preload("Course.Semester.Program").Find(datas).Error
+	err := r.db.Model(&models.Class{}).Order("id desc").Preload("Course").Preload("User").Preload("Course.Semester").Preload("Course.Semester.Program").Find(datas).Error
 	if err != nil {
 		return nil, err
 	}
@@ -31,7 +31,7 @@ func (r *Repository) FindAllClass() (*[]models.Class, error) {
 
 func (r *Repository) FindClassById(id uint) (*models.Class, error) {
 	data := &models.Class{}
-	err := r.db.Model(models.Class{}).Where("id = ?", id).Preload("Course").Preload("Course.Semester").Preload("Course.Semester.Program").Take(data).Error
+	err := r.db.Model(models.Class{}).Where("id = ?", id).Preload("Course").Preload("User").Preload("Course.Semester").Preload("Course.Semester.Program").Take(data).Error
 	if err != nil {
 		return nil, err
 	}

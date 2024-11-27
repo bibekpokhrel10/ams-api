@@ -30,7 +30,7 @@ func (r *Repository) CreateUser(user *models.User) (*models.User, error) {
 
 func (r *Repository) FindUserByEmail(email string) (*models.User, error) {
 	user := &models.User{}
-	err := r.db.Model(models.User{}).Where("email = ?", email).Take(user).Error
+	err := r.db.Model(models.User{}).Where("email = ?", email).Preload("Institution").Take(user).Error
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +50,7 @@ func (r *Repository) FindUserByUsername(username string) (*models.User, error) {
 	user := &models.User{}
 	db := r.db.Model(models.User{}).
 		Where("username = ? or email = ?", strings.ToLower(username), strings.ToLower(username))
-	err := db.Take(user).Error
+	err := db.Preload("Institution").Take(user).Error
 	if err != nil {
 		return nil, err
 	}
@@ -59,7 +59,7 @@ func (r *Repository) FindUserByUsername(username string) (*models.User, error) {
 
 func (r *Repository) FindUserById(id uint) (*models.User, error) {
 	user := &models.User{}
-	err := r.db.Model(models.User{}).Where("id = ?", id).Take(user).Error
+	err := r.db.Model(models.User{}).Where("id = ?", id).Preload("Institution").Take(user).Error
 	if err != nil {
 		return nil, err
 	}
@@ -76,13 +76,16 @@ func (r *Repository) FindAllUsers(req *models.ListUserRequest) ([]models.User, i
 	if req.FirstName != "" {
 		f = f.Where("first_name = ?", req.FirstName)
 	}
-	if req.Type != "" {
-		f = f.Where("user_type = ?", req.Type)
+	if req.UserType != "" {
+		f = f.Where("user_type = ?", req.UserType)
+	}
+	if req.InstitutionId != 0 {
+		f = f.Where("institution_id = ?", req.InstitutionId)
 	}
 	f = f.Where("lower(email) LIKE lower(?)", "%"+req.Query+"%").Count(&count)
 	err := f.Order(req.SortColumn + " " + req.SortDirection).
 		Limit(int(req.Size)).
-		Offset(int(req.Size * (req.Page - 1))).
+		Offset(int(req.Size * (req.Page - 1))).Preload("Institution").
 		Find(&datas).Error
 	if err != nil {
 		return nil, count, err
@@ -118,7 +121,7 @@ func (r *Repository) DeleteUser(id uint) error {
 
 func (r *Repository) FindUserByEmailAndInstitutionId(email string, institutionId uint) (*models.User, error) {
 	user := &models.User{}
-	err := r.db.Model(models.User{}).Where("email = ? AND institution_id = ?", email, institutionId).Take(user).Error
+	err := r.db.Model(models.User{}).Where("email = ? AND institution_id = ?", email, institutionId).Preload("Institution").Take(user).Error
 	if err != nil {
 		return nil, err
 	}
