@@ -132,6 +132,7 @@ func (s Service) GetAttendanceStatsByDate(classId uint, date string) (*models.At
 		TotalPresent:  0,
 		TotalAbsent:   0,
 		TotalLate:     0,
+		TotalOnLeave:  0,
 		TotalStudents: 0,
 	}
 	for _, data := range *datas {
@@ -140,7 +141,10 @@ func (s Service) GetAttendanceStatsByDate(classId uint, date string) (*models.At
 		} else if data.Status == "absent" {
 			attendanceStats.TotalAbsent++
 		} else if data.Status == "late" {
+			attendanceStats.TotalPresent++
 			attendanceStats.TotalLate++
+		} else if data.Status == "leave" {
+			attendanceStats.TotalOnLeave++
 		}
 		attendanceStats.TotalStudents++
 	}

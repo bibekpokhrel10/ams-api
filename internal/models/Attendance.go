@@ -63,6 +63,7 @@ type AttendanceStats struct {
 	TotalAbsent   int `json:"total_absent"`
 	TotalLate     int `json:"total_late"`
 	TotalStudents int `json:"total_students"`
+	TotalOnLeave  int `json:"total_on_leave"`
 }
 
 func (a *Attendance) AttendanceResponse() *AttendanceResponse {

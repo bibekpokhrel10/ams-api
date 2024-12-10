@@ -93,17 +93,17 @@ func (r *Repository) GetInstitutionAdminDashboard(institutionID uint) (*models.I
 	trends := []models.MonthlyAttendance{}
 
 	if err := r.db.Raw(`
-		SELECT 
-			DATE_FORMAT(a.date, '%Y-%m') as month,
-			AVG(CASE WHEN a.is_present THEN 100 ELSE 0 END) as attendance
-		FROM attendances a
-		JOIN classes c ON a.class_id = c.id
-		JOIN users u ON c.instructor_id = u.id
-		WHERE u.institution_id = ?
-		GROUP BY DATE_FORMAT(a.date, '%Y-%m')
-		ORDER BY month DESC
-		LIMIT 6
-	`, institutionID).Scan(&trends).Error; err != nil {
+    SELECT 
+        TO_CHAR(a.date, 'YYYY-MM') as month,
+ 	       AVG(CASE WHEN a.is_present THEN 100 ELSE 0 END) as attendance
+    FROM attendances a
+    JOIN classes c ON a.class_id = c.id
+    JOIN users u ON c.instructor_id = u.id
+    WHERE u.institution_id = ?
+    GROUP BY TO_CHAR(a.date, 'YYYY-MM')
+    ORDER BY month DESC
+    LIMIT 6
+`, institutionID).Scan(&trends).Error; err != nil {
 		return nil, err
 	}
 
@@ -159,33 +159,71 @@ func (r *Repository) GetTeacherDashboard(teacherID uint) (*models.TeacherDashboa
 func (r *Repository) GetStudentDashboard(studentID uint) (*models.StudentDashboard, error) {
 	var dashboard models.StudentDashboard
 
-	courses := []models.CourseInfo{}
+	// Updated query to leverage model relationships
+	classes := []models.ClassDetails{}
 
 	if err := r.db.Raw(`
 		SELECT 
-			co.name,
-			'N/A' as grade,
-			COALESCE(AVG(CASE WHEN a.is_present THEN 100 ELSE 0 END), 0) as attendance
+			c.id as class_id,
+			co.code as course_code,
+			co.name as course_name,
+			co.credits,
+			p.name as program_name,
+			s.name as semester_name,
+			s.year as semester_year,
+			s.time_period as semester_period,
+			c.year,
+			c.schedule,
+			u.first_name as instructor_name,
+			COALESCE(AVG(CASE WHEN a.is_present THEN 100.0 ELSE 0.0 END), 0) as class_attendance,
+			CASE WHEN e.student_id IS NOT NULL THEN true ELSE false END as is_enrolled
 		FROM enrollments e
 		JOIN classes c ON e.class_id = c.id
 		JOIN courses co ON c.course_id = co.id
+		JOIN semesters s ON co.semester_id = s.id
+		JOIN programs p ON s.program_id = p.id
+		JOIN users u ON c.instructor_id = u.id
 		LEFT JOIN attendances a ON a.class_id = c.id AND a.student_id = e.student_id
 		WHERE e.student_id = ?
-		GROUP BY co.id, co.name
-	`, studentID).Scan(&courses).Error; err != nil {
+		GROUP BY 
+			c.id, co.code, co.name, co.credits, 
+			p.name, s.name, s.year, s.time_period, 
+			c.year, c.schedule, u.first_name, e.student_id
+	`, studentID).Scan(&classes).Error; err != nil {
 		return nil, err
 	}
 
-	dashboard.Stats.TotalCourses = len(courses)
-	var totalAttendance float64
-	for _, course := range courses {
-		totalAttendance += course.Attendance
+	// Monthly attendance data for the student across all enrolled classes
+	monthlyAttendance := []models.MonthlyAttendance{}
+
+	if err := r.db.Raw(`
+		SELECT 
+			TO_CHAR(a.date, 'YYYY-MM') as month,
+			COALESCE(AVG(CASE WHEN a.is_present THEN 100.0 ELSE 0.0 END), 0) as attendance
+		FROM enrollments e
+		JOIN classes c ON e.class_id = c.id
+		JOIN attendances a ON a.class_id = c.id AND a.student_id = e.student_id
+		WHERE e.student_id = ?
+		GROUP BY TO_CHAR(a.date, 'YYYY-MM')
+		ORDER BY month DESC
+		LIMIT 6
+	`, studentID).Scan(&monthlyAttendance).Error; err != nil {
+		return nil, err
 	}
 
-	if len(courses) > 0 {
-		dashboard.Stats.AverageAttendance = int(totalAttendance / float64(len(courses)))
+	// Calculate stats
+	dashboard.Stats.TotalClasses = len(classes)
+	var totalAttendance float64
+	for _, class := range classes {
+		totalAttendance += class.ClassAttendance
 	}
-	dashboard.Courses = courses
+
+	if len(classes) > 0 {
+		dashboard.Stats.AverageAttendance = int(totalAttendance / float64(len(classes)))
+	}
+
+	dashboard.Classes = classes
+	dashboard.MonthlyAttendance = monthlyAttendance
 
 	return &dashboard, nil
 }

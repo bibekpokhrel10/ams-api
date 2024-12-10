@@ -11,12 +11,12 @@ type DashboardResponse struct {
 // SuperAdmin Dashboard
 type SuperAdminDashboard struct {
 	Stats struct {
-		TotalInstitutions int `json:"totalInstitutions"`
-		TotalStudents     int `json:"totalStudents"`
-		TotalTeachers     int `json:"totalTeachers"`
-		TotalCourses      int `json:"totalCourses"`
+		TotalInstitutions int `json:"total_institutions"`
+		TotalStudents     int `json:"total_students"`
+		TotalTeachers     int `json:"total_teachers"`
+		TotalCourses      int `json:"total_courses"`
 	} `json:"stats"`
-	InstitutionsList []InstitutionAttendance `json:"institutionsList"`
+	InstitutionsList []InstitutionAttendance `json:"institutions_list"`
 }
 
 type InstitutionAttendance struct {
@@ -27,12 +27,12 @@ type InstitutionAttendance struct {
 // Institution Admin Dashboard
 type InstitutionAdminDashboard struct {
 	Stats struct {
-		TotalStudents     int `json:"totalStudents"`
-		TotalTeachers     int `json:"totalTeachers"`
-		TotalCourses      int `json:"totalCourses"`
-		AverageAttendance int `json:"averageAttendance"`
+		TotalStudents     int `json:"total_students"`
+		TotalTeachers     int `json:"total_teachers"`
+		TotalCourses      int `json:"total_courses"`
+		AverageAttendance int `json:"average_attendance"`
 	} `json:"stats"`
-	AttendanceTrends []MonthlyAttendance `json:"attendanceTrends"`
+	AttendanceTrends []MonthlyAttendance `json:"attendance_trends"`
 }
 
 type MonthlyAttendance struct {
@@ -43,11 +43,11 @@ type MonthlyAttendance struct {
 // Program Admin Dashboard
 type ProgramAdminDashboard struct {
 	Stats struct {
-		TotalStudents     int `json:"totalStudents"`
-		TotalCourses      int `json:"totalCourses"`
-		AverageAttendance int `json:"averageAttendance"`
+		TotalStudents     int `json:"total_students"`
+		TotalCourses      int `json:"total_courses"`
+		AverageAttendance int `json:"average_attendance"`
 	} `json:"stats"`
-	SemesterData []SemesterInfo `json:"semesterData"`
+	SemesterData []SemesterInfo `json:"semester_data"`
 }
 
 type SemesterInfo struct {
@@ -58,9 +58,9 @@ type SemesterInfo struct {
 // Teacher Dashboard
 type TeacherDashboard struct {
 	Stats struct {
-		TotalClasses      int `json:"totalClasses"`
-		TotalStudents     int `json:"totalStudents"`
-		AverageAttendance int `json:"averageAttendance"`
+		TotalClasses      int `json:"total_classes"`
+		TotalStudents     int `json:"total_students"`
+		AverageAttendance int `json:"average_attendance"`
 	} `json:"stats"`
 	Classes []ClassInfo `json:"classes"`
 }
@@ -71,18 +71,27 @@ type ClassInfo struct {
 	Attendance float64 `json:"attendance"`
 }
 
-// Student Dashboard
 type StudentDashboard struct {
 	Stats struct {
-		TotalCourses      int `json:"totalCourses"`
-		AverageAttendance int `json:"averageAttendance"`
-		CurrentSemester   int `json:"currentSemester"`
+		TotalClasses      int `json:"total_classes"`
+		AverageAttendance int `json:"average_attendance"`
 	} `json:"stats"`
-	Courses []CourseInfo `json:"courses"`
+	Classes           []ClassDetails      `json:"classes"`
+	MonthlyAttendance []MonthlyAttendance `json:"monthly_attendance"`
 }
 
-type CourseInfo struct {
-	Name       string  `json:"name"`
-	Grade      string  `json:"grade"`
-	Attendance float64 `json:"attendance"`
+type ClassDetails struct {
+	ClassID         uint    `json:"class_id"`
+	CourseCode      string  `json:"course_code"`
+	CourseName      string  `json:"course_name"`
+	CourseCredits   int     `json:"course_credits"`
+	ProgramName     string  `json:"program_name"`
+	SemesterName    string  `json:"semester_name"`
+	SemesterYear    string  `json:"semester_year"`
+	SemesterPeriod  string  `json:"semester_period"`
+	Year            int     `json:"year"`
+	Schedule        string  `json:"schedule"`
+	InstructorName  string  `json:"instructor_name"`
+	ClassAttendance float64 `json:"class_attendance"`
+	IsEnrolled      bool    `json:"is_enrolled"`
 }
