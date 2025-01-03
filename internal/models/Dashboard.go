@@ -1,5 +1,7 @@
 package models
 
+import "time"
+
 type DashboardResponse struct {
 	SuperAdmin       *SuperAdminDashboard       `json:"super_admin,omitempty"`
 	InstitutionAdmin *InstitutionAdminDashboard `json:"institution_admin,omitempty"`
@@ -20,17 +22,16 @@ type SuperAdminDashboard struct {
 }
 
 type InstitutionAttendance struct {
-	Name       string  `json:"name"`
-	Attendance float64 `json:"attendance"`
+	Name string `json:"name"`
+	// Attendance float64 `json:"attendance"`
 }
 
 // Institution Admin Dashboard
 type InstitutionAdminDashboard struct {
 	Stats struct {
-		TotalStudents     int `json:"total_students"`
-		TotalTeachers     int `json:"total_teachers"`
-		TotalCourses      int `json:"total_courses"`
-		AverageAttendance int `json:"average_attendance"`
+		TotalStudents int `json:"total_students"`
+		TotalTeachers int `json:"total_teachers"`
+		TotalCourses  int `json:"total_courses"`
 	} `json:"stats"`
 	AttendanceTrends []MonthlyAttendance `json:"attendance_trends"`
 }
@@ -66,6 +67,7 @@ type TeacherDashboard struct {
 }
 
 type ClassInfo struct {
+	ClassId    uint    `json:"class_id"`
 	Name       string  `json:"name"`
 	Students   int     `json:"students"`
 	Attendance float64 `json:"attendance"`
@@ -94,4 +96,60 @@ type ClassDetails struct {
 	InstructorName  string  `json:"instructor_name"`
 	ClassAttendance float64 `json:"class_attendance"`
 	IsEnrolled      bool    `json:"is_enrolled"`
+}
+
+type StudentClassAttendance struct {
+	BasicInfo struct {
+		ClassID        uint   `json:"class_id"`
+		CourseCode     string `json:"course_code"`
+		CourseName     string `json:"course_name"`
+		InstructorName string `json:"instructor_name"`
+		Schedule       string `json:"schedule"`
+		StudentName    string `json:"student_name"`
+		RollNumber     uint   `json:"roll_number"`
+		PresentClasses int    `json:"present_classes"`
+		TotalClasses   int    `json:"total_classes"`
+		CurrentStreak  int    `json:"current_streak"`
+	} `json:"basic_info"`
+	MonthlyAttendance []struct {
+		Month      string  `json:"month"`
+		Present    int     `json:"present"`
+		Total      int     `json:"total"`
+		Attendance float64 `json:"attendance"`
+	} `json:"monthly_attendance"`
+	RecentAttendance []struct {
+		Date   time.Time `json:"date"`
+		Week   string    `json:"week"`
+		Status string    `json:"status"`
+	} `json:"recent_attendance"`
+}
+
+type TeacherClassAttendance struct {
+	BasicInfo struct {
+		ClassID           uint    `json:"class_id"`
+		CourseCode        string  `json:"course_code"`
+		CourseName        string  `json:"course_name"`
+		InstructorName    string  `json:"instructor_name"`
+		Schedule          string  `json:"schedule"`
+		TotalStudents     int     `json:"total_students"`
+		OverallAttendance float64 `json:"overall_attendance"`
+		TotalClasses      int     `json:"total_classes"`
+	} `json:"basic_info"`
+	WeeklyData []struct {
+		Week       string  `json:"week"`
+		Present    int     `json:"present"`
+		Total      int     `json:"total"`
+		Attendance float64 `json:"attendance"`
+	} `json:"weekly_data"`
+	MonthlyData []struct {
+		Month      string  `json:"month"`
+		Present    int     `json:"present"`
+		Total      int     `json:"total"`
+		Attendance float64 `json:"attendance"`
+	} `json:"monthly_data"`
+	StudentList []struct {
+		ID         uint    `json:"id"`
+		Name       string  `json:"name"`
+		Attendance float64 `json:"attendance"`
+	} `json:"student_list"`
 }

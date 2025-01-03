@@ -8,6 +8,8 @@ import (
 
 type IDashboard interface {
 	GetDashboard(userId uint) (*models.DashboardResponse, error)
+	GetStudentClassAttendanceDetails(userId, classId uint) (*models.StudentClassAttendance, error)
+	GetTeacherClassAttendanceDetails(classId uint) (*models.TeacherClassAttendance, error)
 }
 
 func (s Service) GetDashboard(userId uint) (*models.DashboardResponse, error) {
@@ -26,7 +28,7 @@ func (s Service) GetDashboard(userId uint) (*models.DashboardResponse, error) {
 		return data, nil
 	}
 	if user.UserType == constants.INSTITUTION_ADMIN {
-		adminDashboard, err := s.repo.GetInstitutionAdminDashboard(userId)
+		adminDashboard, err := s.repo.GetInstitutionAdminDashboard(user.InstitutionId)
 		if err != nil {
 			logrus.Error("error getting institution admin dashboard :: ", err)
 			return nil, err
@@ -62,4 +64,20 @@ func (s Service) GetDashboard(userId uint) (*models.DashboardResponse, error) {
 		return data, nil
 	}
 	return nil, nil
+}
+
+func (s Service) GetStudentClassAttendanceDetails(userId, classId uint) (*models.StudentClassAttendance, error) {
+	data, err := s.repo.GetStudentClassAttendance(userId, classId)
+	if err != nil {
+		return nil, err
+	}
+	return data, nil
+}
+
+func (s Service) GetTeacherClassAttendanceDetails(classId uint) (*models.TeacherClassAttendance, error) {
+	data, err := s.repo.GetTeacherClassAttendance(classId)
+	if err != nil {
+		return nil, err
+	}
+	return data, nil
 }

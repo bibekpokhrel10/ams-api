@@ -9,7 +9,7 @@ import (
 type IClass interface {
 	CreateClass(req *models.ClassRequest) (*models.ClassResponse, error)
 	GetClassById(id uint) (*models.ClassResponse, error)
-	ListClass() ([]models.ClassResponse, error)
+	ListClass(req *models.ListClassRequest) ([]models.ClassResponse, error)
 	DeleteClass(id uint) error
 	UpdateClass(id uint, req *models.ClassRequest) (*models.ClassResponse, error)
 }
@@ -52,8 +52,8 @@ func (s Service) GetClassById(id uint) (*models.ClassResponse, error) {
 	return data.ClassResponse(), nil
 }
 
-func (s Service) ListClass() ([]models.ClassResponse, error) {
-	datas, err := s.repo.FindAllClass()
+func (s Service) ListClass(req *models.ListClassRequest) ([]models.ClassResponse, error) {
+	datas, err := s.repo.FindAllClass(req)
 	if err != nil {
 		return nil, err
 	}

@@ -107,3 +107,23 @@ func (req *AttendanceRecordRequest) Validate() error {
 func (req *AttendanceRecordRequest) Prepare() {
 
 }
+
+type StudentAttendanceAlert struct {
+	StudentID                 int      `json:"student_id"`
+	FirstName                 string   `json:"first_name"`
+	LastName                  string   `json:"last_name"`
+	Email                     string   `json:"email"`
+	CourseName                string   `json:"course_name"`
+	CourseCode                string   `json:"course_code"`
+	InstructorName            string   `json:"instructor_name"`
+	ClassesAttended           int      `json:"classes_attended"`
+	TotalClasses              int      `json:"total_classes"`
+	AttendancePercentage      float64  `json:"attendance_percentage"`
+	RecentAttendance          []string `json:"recent_attendance"`
+	ClassesNeededForThreshold int      `json:"classes_needed_for_threshold"`
+}
+
+type SendAlertRequest struct {
+	Threshold float64 `json:"threshold"`
+	UserType  string  `json:"user_type"`
+}

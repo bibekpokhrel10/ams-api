@@ -25,7 +25,13 @@ func (server *Server) createClass(ctx *gin.Context) {
 }
 
 func (server *Server) listClass(ctx *gin.Context) {
-	datas, err := server.service.ListClass()
+	id := ctx.Query("instructor_id")
+	instructorId, err := strconv.ParseUint(id, 10, 64)
+	if err != nil {
+		instructorId = 0
+	}
+	req := &models.ListClassRequest{InstructorId: uint(instructorId)}
+	datas, err := server.service.ListClass(req)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, response.ERROR(err))
 		return

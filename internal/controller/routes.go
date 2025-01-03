@@ -33,6 +33,7 @@ func (server *Server) setupRouter() {
 func (server *Server) setupBasicRoutes(routes *gin.RouterGroup) {
 	routes.GET("", server.homePage)
 	routes.GET("/institutions", server.listInstitution)
+	routes.POST("/attendances/alerts", server.SendAttendanceAlert)
 }
 
 func (server *Server) setupDashboardRoutes(routes *gin.RouterGroup) {
@@ -126,9 +127,12 @@ func (server *Server) setupProgramEnrollmentRoutes(routes *gin.RouterGroup) {
 
 func (server *Server) setupAttendanceRoutes(routes *gin.RouterGroup) {
 	routes.POST("", server.createAttendance)
+	routes.POST("/send-alerts", server.SendAttendanceAlertManually)
 	routes.GET("", server.listAttendance)
 	routes.GET("/stats", server.listAttendanceStats)
 	routes.GET("/:id", server.getAttendanceById)
+	routes.GET("/class/:id/students", server.getStudentClassAttendance)
+	routes.GET("/class/:id/teachers", server.getTeacherClassAttendance)
 	routes.PUT("/:id", server.updateAttendance)
 	routes.DELETE("/:id", server.deleteAttendance)
 }

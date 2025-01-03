@@ -121,3 +121,22 @@ func (server *Server) deleteAttendance(ctx *gin.Context) {
 	}
 	ctx.JSON(http.StatusOK, response.Success(""))
 }
+
+func (server *Server) SendAttendanceAlert(ctx *gin.Context) {
+	server.service.SendAttendanceAlert()
+}
+
+func (server *Server) SendAttendanceAlertManually(ctx *gin.Context) {
+	var req *models.SendAlertRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, response.ERROR(err))
+		return
+	}
+	payload, err := server.getAuthPayload(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, response.ERROR(err))
+		return
+	}
+	server.service.SendAttendanceAlertAccordingToUserType(payload.UserId, req)
+	ctx.JSON(http.StatusOK, response.Success(""))
+}

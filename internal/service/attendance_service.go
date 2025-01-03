@@ -45,7 +45,7 @@ func (s Service) CreateAttendance(req *models.AttendanceRecordRequest) error {
 			Status:    attendance.Status,
 		}
 
-		if attendance.Status == "present" || attendance.Status == "absent" {
+		if attendance.Status == "present" || attendance.Status == "late" {
 			attendanceRequest.IsPresent = true
 		}
 		data, err := s.repo.FindAttendancesByClassIdAndDateAndStudentId(req.ClassId, req.Date, attendance.StudentId)

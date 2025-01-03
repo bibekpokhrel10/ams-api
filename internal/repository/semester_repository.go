@@ -47,7 +47,6 @@ func (r *Repository) UpdateSemester(id uint, req *models.SemesterRequest) (*mode
 	data := &models.Semester{}
 	err := r.db.Model(&models.Semester{}).Where("id = ?", id).Updates(map[string]interface{}{
 		"name":        req.Name,
-		"year":        req.Year,
 		"time_period": req.TimePeriod,
 		"program_id":  req.ProgramId,
 	}).Take(&data).Error

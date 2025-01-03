@@ -9,12 +9,15 @@ import (
 
 type Class struct {
 	gorm.Model
-	CourseId     uint    `json:"course_id"`
-	Course       *Course `gorm:"foreignKey:CourseId" json:"course"`
-	Year         int     `json:"year"`
-	Schedule     string  `json:"schedule"`
-	InstructorID uint    `json:"instructor_id"`
-	User         *User   `gorm:"foreignKey:InstructorID" json:"user"`
+	CourseId uint    `json:"course_id"`
+	Course   *Course `gorm:"foreignKey:CourseId" json:"course"`
+	Year     int     `json:"year"`
+	// StartTime    string  `json:"start_time"`
+	// EndTime      string  `json:"end_time"`
+	// DayOfWeek    string  `json:"day_of_week"`
+	Schedule     string `json:"schedule"`
+	InstructorID uint   `json:"instructor_id"`
+	User         *User  `gorm:"foreignKey:InstructorID" json:"user"`
 }
 
 type ClassResponse struct {
@@ -25,6 +28,10 @@ type ClassResponse struct {
 	Schedule     string          `json:"schedule"`
 	InstructorID uint            `json:"instructor_id"`
 	User         *UserResponse   `json:"user"`
+}
+
+type ListClassRequest struct {
+	InstructorId uint `form:"instructor_id"`
 }
 
 type ClassRequest struct {

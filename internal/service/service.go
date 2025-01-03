@@ -15,6 +15,7 @@ type IService interface {
 	IDashboard
 	IProgramAdmin
 	IInstitutionAdmin
+	ISendMail
 }
 
 type Service struct {

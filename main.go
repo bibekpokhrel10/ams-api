@@ -10,6 +10,7 @@ import (
 	"github.com/ams-api/internal/config/database"
 	"github.com/ams-api/internal/controller"
 	"github.com/ams-api/internal/repository"
+	"github.com/ams-api/internal/seeder"
 	"github.com/ams-api/internal/service"
 	"github.com/sirupsen/logrus"
 )
@@ -36,6 +37,9 @@ func main() {
 	err = repository.AutoMigrate(db)
 	if err != nil {
 		logrus.Fatal("Error on migrating table :: ", err)
+	}
+	if err := seeder.LoadSeeder(db); err != nil {
+		logrus.Fatal("Unable to load seeder :: ", err)
 	}
 	logrus.SetReportCaller(true)
 	logrus.SetFormatter(&logrus.TextFormatter{
